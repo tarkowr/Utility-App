@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Utility</string>
     <string name="app_icon">Wrench Icon</string>
+    <string name="status_db">Setting up Database...</string>
+    <string name="status_user">Getting User Info...</string>
+    <string name="create_title">Create Account</string>
+    <string name="edit_username">Username</string>
+    <string name="btn_create_account">Create Account</string>
 </resources>

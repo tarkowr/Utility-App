@@ -4,16 +4,22 @@ import java.util.Date;
 import java.util.UUID;
 
 public class User {
-    private UUID id;
+    private UUID uuid;
     private String username;
     private Date createdDate;
 
     public UUID getId() {
-        return id;
+        return this.uuid;
+    }
+
+    public void setId(UUID _id){
+        if (this.uuid == null){
+            this.uuid = _id;
+        }
     }
 
     public String getUsername() {
-        return username;
+        return this.username;
     }
 
     public void setUsername(String username) {
@@ -21,12 +27,20 @@ public class User {
     }
 
     public Date getCreatedDate() {
-        return createdDate;
+        return this.createdDate;
+    }
+
+    public void setCreatedDate(Date _createdDate){
+        this.createdDate = _createdDate;
+    }
+
+    public User(UUID _id){
+        setId(_id);
     }
 
     public User (String _username){
         this.username = _username;
-        this.id = UUID.randomUUID();
+        this.uuid = UUID.randomUUID();
         this.createdDate = new Date();
     }
 }
