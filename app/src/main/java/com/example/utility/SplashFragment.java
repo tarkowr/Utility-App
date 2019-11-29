@@ -3,7 +3,6 @@ package com.example.utility;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,9 +25,9 @@ public class SplashFragment extends Fragment {
     private final int TIMEOUT = 10000;
     private final int START_DELAY = 200;
     private final int MAX_DELAY = 1000;
+    private final int PROGRESS_INCREMENT = 25;
 
     private ProgressBar progressBar;
-    private User user;
     private Timer timeout;
     private TextView txtStatus;
 
@@ -62,7 +61,7 @@ public class SplashFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        launchHomeActivity();
+                        launchCreateAccountFragment();
                     }
                 });
             }
@@ -72,16 +71,22 @@ public class SplashFragment extends Fragment {
         this.timeout.schedule(startSetup, START_DELAY);
         this.timeout.schedule(handleTimeout, TIMEOUT);
 
-        setProgressBar(0);
-
         return view;
     }
 
-    private void launchHomeActivity(){
+    private void launchHomeActivity(final User user){
         cancelTimer();
-        ((SplashActivity)getActivity()).removeFragment(SplashFragment.this);
-        Intent intent = new Intent(getActivity(), HomeActivity.class);
-        startActivity(intent);
+        getActivity().runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                SplashActivity splashActivity = (SplashActivity)getActivity();
+                splashActivity.removeFragment(SplashFragment.this);
+                Intent intent = HomeActivity.newIntent(getActivity(), user.getId());
+                startActivity(intent);
+                splashActivity.finishActivity();
+            }
+        });
     }
 
     private void launchCreateAccountFragment(){
@@ -90,44 +95,41 @@ public class SplashFragment extends Fragment {
 
             @Override
             public void run() {
-                ((SplashActivity)getActivity()).removeFragment(SplashFragment.this);
-                ((SplashActivity)getActivity()).launchCreateAccountFragment();
+                SplashActivity splashActivity = (SplashActivity)getActivity();
+                splashActivity.removeFragment(SplashFragment.this);
+                splashActivity.launchCreateAccountFragment();
             }
         });
     }
 
-    private void databaseSetup(){
-        setProgressBar(25);
-        JavaUtils.pauseUI(JavaUtils.returnRandomInt(MAX_DELAY));
+    private User databaseSetup(){
+        updateProgressAndDelay();
 
         UserDataService dataService = UserDataService.get(getActivity());
-        setProgressBar(50);
-        JavaUtils.pauseUI(JavaUtils.returnRandomInt(MAX_DELAY));
+        updateProgressAndDelay();
 
         setStatusText(R.string.status_user);
-        this.user = dataService.getDefaultUser();
-
-        setProgressBar(75);
-        JavaUtils.pauseUI(JavaUtils.returnRandomInt(MAX_DELAY));
-
-        setProgressBar(100);
-        JavaUtils.pauseUI(JavaUtils.returnRandomInt(MAX_DELAY));
+        User user = dataService.getDefaultUser();
+        updateProgressAndDelay();
 
         cancelTimer();
-        setStatusText("");
+        setStatusText(R.string.status_complete);
+        updateProgressAndDelay();
 
-        if(this.user == null){
-            Log.d("USER", "IS NULL");
-            launchCreateAccountFragment();
-        }
-        else{
-            Log.d("USER", user.getUsername());
-            launchHomeActivity();
-        }
+        return user;
+    }
+
+    private void updateProgressAndDelay(){
+        setProgressBar(incrementProgress());
+        JavaUtils.pauseUI(JavaUtils.returnRandomInt(MAX_DELAY));
     }
 
     private void setProgressBar(int value){
         progressBar.setProgress(value);
+    }
+
+    private int incrementProgress(){
+        return progressBar.getProgress() + PROGRESS_INCREMENT;
     }
 
     private void cancelTimer(){
@@ -145,35 +147,24 @@ public class SplashFragment extends Fragment {
         });
     }
 
-    private void setStatusText(final String str){
-        getActivity().runOnUiThread(new Runnable() {
+    private class DatabaseStatus extends AsyncTask<String, String, User> {
 
-            @Override
-            public void run() {
-                txtStatus.setText(str);
+        @Override
+        protected User doInBackground(String... args) {
+            return databaseSetup();
+        }
+
+        @Override
+        protected void onProgressUpdate(String... progress) { }
+
+        @Override
+        protected void onPostExecute(User user) {
+            if(user == null){
+                launchCreateAccountFragment();
             }
-        });
-    }
-
-    private class DatabaseStatus extends AsyncTask<String, String, String> {
-
-        @Override
-        protected String doInBackground(String ... args) {
-            databaseSetup();
-            // setProgressBar(100);
-            /*while(true) {
-                publishProgress();
-            }*/
-
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(String... progress) {
-            // setProgressBar(100);
-            // cancelTimer();
-            // launchHomeActivity();
+            else{
+                launchHomeActivity(user);
+            }
         }
     }
-
 }

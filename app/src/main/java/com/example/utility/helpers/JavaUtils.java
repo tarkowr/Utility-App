@@ -1,5 +1,8 @@
 package com.example.utility.helpers;
 
+import android.content.Context;
+import android.widget.Toast;
+
 import java.util.Random;
 
 public class JavaUtils {
@@ -14,5 +17,9 @@ public class JavaUtils {
             Thread.sleep(delay);
         }
         catch (InterruptedException ex){ }
+    }
+
+    public static void ShowToast(Context context, int stringResource){
+        Toast.makeText(context, stringResource, Toast.LENGTH_SHORT).show();
     }
 }
