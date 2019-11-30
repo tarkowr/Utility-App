@@ -1,4 +1,5 @@
 <resources>
+    <!--Utility-->
     <string name="app_name">Utility</string>
     <string name="app_icon">Wrench Icon</string>
     <string name="status_db">Setting up Database...</string>
@@ -12,4 +13,16 @@
     <string name="txt_welcome">Welcome!</string>
     <string name="img_user_icon">User Icon</string>
     <string name="txt_account_name">Account Name:</string>
+
+    <!--Currency Exchange App-->
+    <string name="app_currency_exchange">Currency Exchange</string>
+    <string name="app_currency_exchange_invalid_amount">Invalid Amount!</string>
+    <string name="app_currency_exchange_my_currency">My Currency</string>
+    <string name="app_currency_exchange_converted_to">Converted To</string>
+    <string name="app_currency_exchange_amount_hint">Amount</string>
+    <string name="app_currency_exchange_convert_switch">Convert to USD</string>
+    <string name="app_currency_exchange_quote_text">Quote</string>
+
+    <!--Task Manager App-->
+    <string name="app_task_manager">Task Manager</string>
 </resources>

@@ -1,6 +1,8 @@
 package com.example.utility;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,13 +12,12 @@ import android.widget.TextView;
 import com.example.utility.dataservice.UserDataService;
 import com.example.utility.models.User;
 
-import org.w3c.dom.Text;
-
 import java.util.UUID;
 
 public class HomeActivity extends AppCompatActivity {
 
     public static final String EXTRA_USER_ID = "utility.user.id";
+    protected FragmentManager fm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +29,16 @@ public class HomeActivity extends AppCompatActivity {
 
         if(!user.getUsername().isEmpty()){
             welcomeTitle.setText("Welcome, " + user.getUsername() + "!");
+        }
+
+        fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentById(R.id.home_fragment_container);
+
+        if(fragment == null){
+            fragment = new AppListFragment();
+            fm.beginTransaction()
+                    .add(R.id.home_fragment_container, fragment)
+                    .commit();
         }
     }
 

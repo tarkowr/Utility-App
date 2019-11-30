@@ -7,21 +7,24 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 public abstract class SingleFragmentActivity extends AppCompatActivity {
-    private FragmentManager fm;
+    protected FragmentManager fm;
     protected abstract Fragment returnFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fragment);
+        setupFragmentManager(R.id.fragment_container);
+    }
 
+    protected void setupFragmentManager(int fragmentContainerId){
         fm = getSupportFragmentManager();
-        Fragment fragment = fm.findFragmentById(R.id.fragment_container);
+        Fragment fragment = fm.findFragmentById(fragmentContainerId);
 
         if(fragment == null){
             fragment = returnFragment();
             fm.beginTransaction()
-                    .add(R.id.fragment_container, fragment)
+                    .add(fragmentContainerId, fragment)
                     .commit();
         }
     }

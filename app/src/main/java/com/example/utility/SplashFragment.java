@@ -3,6 +3,7 @@ package com.example.utility;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -147,11 +148,20 @@ public class SplashFragment extends Fragment {
         });
     }
 
+    /*
+    https://developer.android.com/reference/android/os/AsyncTask
+     */
     private class DatabaseStatus extends AsyncTask<String, String, User> {
 
         @Override
         protected User doInBackground(String... args) {
-            return databaseSetup();
+            try{
+                return databaseSetup();
+            }
+            catch (Exception e){
+                Log.e("UtilitySplashFragment", "DB SETUP");
+                return null;
+            }
         }
 
         @Override

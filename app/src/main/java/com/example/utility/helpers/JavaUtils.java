@@ -22,4 +22,20 @@ public class JavaUtils {
     public static void ShowToast(Context context, int stringResource){
         Toast.makeText(context, stringResource, Toast.LENGTH_SHORT).show();
     }
+
+    /*
+    Double parse with try/catch for exception handling
+     */
+    public static double DoubleTryParse(String amount){
+        try{
+            double parsed = Double.parseDouble(amount);
+            if (parsed == 0){
+                throw new Exception("Invalid Double");
+            }
+            return parsed;
+        }
+        catch (Exception e){
+            return 0;
+        }
+    }
 }
