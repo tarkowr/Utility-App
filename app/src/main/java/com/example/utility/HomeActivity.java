@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.example.utility.apps.CurrencyExchangeAppActivity;
 import com.example.utility.dataservice.UserDataService;
+import com.example.utility.models.AppItem;
 import com.example.utility.models.User;
 
 import java.util.UUID;

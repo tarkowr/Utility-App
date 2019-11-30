@@ -19,7 +19,7 @@ public class AppItem {
         return resId;
     }
 
-    public Class<?> getActivityId() {
+    public Class<?> getActivity() {
         return activity;
     }
 

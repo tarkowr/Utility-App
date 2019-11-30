@@ -13,6 +13,7 @@
     <string name="txt_welcome">Welcome!</string>
     <string name="img_user_icon">User Icon</string>
     <string name="txt_account_name">Account Name:</string>
+    <string name="app_content_desc">App Icon</string>
 
     <!--Currency Exchange App-->
     <string name="app_currency_exchange">Currency Exchange</string>

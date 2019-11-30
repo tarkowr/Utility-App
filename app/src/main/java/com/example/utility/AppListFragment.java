@@ -1,9 +1,11 @@
 package com.example.utility;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,12 +14,16 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.utility.apps.CurrencyExchangeAppActivity;
+import com.example.utility.dataservice.AppDataService;
 import com.example.utility.models.AppItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+https://antonioleiva.com/recyclerview-listener/
+https://stackoverflow.com/questions/24471109/recyclerview-onclick
+ */
 public class AppListFragment extends Fragment {
 
     private RecyclerView appList;
@@ -28,7 +34,7 @@ public class AppListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        InitializeApps();
+        this.apps = InitializeApps();
     }
 
     @Override
@@ -41,53 +47,76 @@ public class AppListFragment extends Fragment {
         return view;
     }
 
-    private void InitializeApps(){
-        apps.add(new AppItem(getResources().getString(R.string.app_currency_exchange),
-                R.mipmap.currency_icon,
-                CurrencyExchangeAppActivity.class));
+    private List<AppItem> InitializeApps(){
+        return AppDataService.get(getActivity()).getApps();
     }
 
     private void setupAdapter(){
         if(isAdded()){
-            appList.setAdapter(new AppAdapter(apps));
+            appList.setAdapter(new AppAdapter(apps, onAppClickListener));
         }
     }
 
+    private OnItemClickListener onAppClickListener = new OnItemClickListener() {
+        @Override
+        public void onItemClick(AppItem app) {
+            Intent intent = new Intent(getActivity(), app.getActivity());
+            startActivity(intent);
+        }
+    };
+
     private class AppHolder extends RecyclerView.ViewHolder {
         private TextView appName;
+        private ImageView appImage;
 
-        public AppHolder(View appView){
-            super(appView);
-            appName = (TextView) appView;
+        public AppHolder(View appContainerView){
+            super(appContainerView);
+            appName = appContainerView.findViewById(R.id.app_title);
+            appImage = appContainerView.findViewById(R.id.app_icon);
         }
 
-        public void bindListApp(AppItem app) {
+        public void bindListApp(final AppItem app, final OnItemClickListener listener) {
             appName.setText(app.toString());
+            appImage.setImageResource(app.getResId());
+
+            appImage.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    listener.onItemClick(app);
+                }
+            });
         }
     }
 
     private class AppAdapter extends RecyclerView.Adapter<AppHolder> {
-        private List<AppItem> apps;
 
-        public AppAdapter(List<AppItem> _apps){
+        private List<AppItem> apps;
+        private OnItemClickListener listener;
+
+        public AppAdapter(List<AppItem> _apps, OnItemClickListener _listener){
             this.apps = _apps;
+            this.listener = _listener;
         }
 
         @Override
         public AppHolder onCreateViewHolder(ViewGroup viewGroup, int viewType){
-            TextView appName = new TextView(getActivity());
-            return new AppHolder(appName);
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
+            View view = inflater.inflate(R.layout.app_list_item, viewGroup, false);
+            return new AppHolder(view);
         }
 
         @Override
         public void onBindViewHolder(AppHolder appHolder, int position){
             AppItem appItem = apps.get(position);
-            appHolder.bindListApp(appItem);
+            appHolder.bindListApp(appItem, listener);
         }
 
         @Override
         public int getItemCount() {
             return apps.size();
         }
+    }
+
+    private interface OnItemClickListener {
+        void onItemClick(AppItem app);
     }
 }
