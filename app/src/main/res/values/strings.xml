@@ -15,6 +15,13 @@
     <string name="txt_account_name">Account Name:</string>
     <string name="app_content_desc">App Icon</string>
 
+    <!--Stopwatch App-->
+    <string name="app_stopwatch">Stopwatch</string>
+    <string name="app_stopwatch_title">Stopwatch</string>
+    <string name="app_stopwatch_start_btn">Start</string>
+    <string name="app_stopwatch_stop_btn">Stop</string>
+    <string name="app_stopwatch_reset_btn">Reset</string>
+
     <!--Currency Exchange App-->
     <string name="app_currency_exchange">Currency Exchange</string>
     <string name="app_currency_exchange_invalid_amount">Invalid Amount!</string>

@@ -24,6 +24,7 @@ public class CurrencyExchangeAppActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_currency_exchange_app);
+        getSupportActionBar().setTitle(JavaUtils.FormatActionBarText(R.string.app_currency_exchange, CurrencyExchangeAppActivity.this));
     }
 
     /*

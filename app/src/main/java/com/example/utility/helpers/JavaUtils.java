@@ -3,6 +3,8 @@ package com.example.utility.helpers;
 import android.content.Context;
 import android.widget.Toast;
 
+import com.example.utility.R;
+
 import java.util.Random;
 
 public class JavaUtils {
@@ -21,6 +23,11 @@ public class JavaUtils {
 
     public static void ShowToast(Context context, int stringResource){
         Toast.makeText(context, stringResource, Toast.LENGTH_SHORT).show();
+    }
+
+    public static String FormatActionBarText(int appNameId, Context context){
+        return context.getResources().getString(R.string.app_name) + " - " +
+                context.getResources().getString(appNameId);
     }
 
     /*

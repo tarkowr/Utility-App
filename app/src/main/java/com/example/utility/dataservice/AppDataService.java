@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.example.utility.R;
 import com.example.utility.apps.CurrencyExchangeAppActivity;
+import com.example.utility.apps.StopWatchAppActivity;
 import com.example.utility.models.AppItem;
 
 import java.util.ArrayList;
@@ -37,6 +38,10 @@ public class AppDataService {
         appList.add(new AppItem(context.getResources().getString(R.string.app_currency_exchange),
                 R.mipmap.ic_currency_exchange,
                 CurrencyExchangeAppActivity.class));
+
+        appList.add(new AppItem(context.getResources().getString(R.string.app_stopwatch),
+                R.mipmap.ic_stopwatch,
+                StopWatchAppActivity.class));
 
         return appList;
     }
