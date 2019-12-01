@@ -9,8 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".apps.CurrencyExchangeAppActivity"></activity>
-        <activity android:name=".apps.StopWatchAppActivity"></activity>
+        <activity android:name=".AppActivity"></activity>
         <activity
             android:name=".SplashActivity"
             android:theme="@style/SplashTheme">

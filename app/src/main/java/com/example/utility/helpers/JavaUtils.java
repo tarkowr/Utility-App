@@ -25,9 +25,8 @@ public class JavaUtils {
         Toast.makeText(context, stringResource, Toast.LENGTH_SHORT).show();
     }
 
-    public static String FormatActionBarText(int appNameId, Context context){
-        return context.getResources().getString(R.string.app_name) + " - " +
-                context.getResources().getString(appNameId);
+    public static String FormatActionBarText(String appName, Context context){
+        return context.getResources().getString(R.string.app_name) + " - " + appName;
     }
 
     /*
