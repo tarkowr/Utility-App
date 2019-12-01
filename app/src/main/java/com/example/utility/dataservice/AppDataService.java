@@ -1,13 +1,16 @@
 package com.example.utility.dataservice;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.utility.R;
-import com.example.utility.apps.CurrencyExchangeAppActivity;
+import com.example.utility.apps.CurrencyExchangeAppFragment;
+import com.example.utility.apps.StopWatchAppFragment;
 import com.example.utility.models.AppItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class AppDataService {
     private static AppDataService appDataService;
@@ -36,8 +39,24 @@ public class AppDataService {
         List<AppItem> appList = new ArrayList<>();
         appList.add(new AppItem(context.getResources().getString(R.string.app_currency_exchange),
                 R.mipmap.ic_currency_exchange,
-                CurrencyExchangeAppActivity.class));
+                new CurrencyExchangeAppFragment()));
+
+        appList.add(new AppItem(context.getResources().getString(R.string.app_stopwatch),
+                R.mipmap.ic_stopwatch,
+                new StopWatchAppFragment()));
 
         return appList;
     }
+
+    public AppItem getAppById(UUID id){
+        AppItem appItem = null;
+        for(AppItem app : this.apps){
+            if(app.getId().equals(id)){
+                appItem = app;
+            }
+        }
+
+        return appItem;
+    }
+
 }

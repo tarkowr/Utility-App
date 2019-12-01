@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".apps.CurrencyExchangeAppActivity">
+    tools:context=".apps.CurrencyExchangeAppFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topConversionLayout"
@@ -132,7 +132,6 @@
         android:layout_height="60sp"
         android:layout_marginTop="32dp"
         android:background="@color/colorPrimary"
-        android:onClick="getQuote"
         android:text="@string/app_currency_exchange_quote_text"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
@@ -161,7 +160,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:onClick="switchCurrency"
         android:text="@string/app_currency_exchange_convert_switch"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
