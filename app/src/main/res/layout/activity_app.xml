@@ -22,7 +22,8 @@
     <LinearLayout
         android:id="@+id/linear_navbar"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
+        android:background="@drawable/navbar_border"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -30,11 +31,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/app_fragment_container">
 
-        <Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
+        <ImageView
+            android:id="@+id/imgHome"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Button" />
+            android:clickable="true"
+            android:contentDescription="@string/app_home_icon"
+            android:focusable="true"
+            app:srcCompat="@drawable/ic_home_foreground" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

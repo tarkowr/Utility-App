@@ -36,6 +36,8 @@ public class CurrencyExchangeAppFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_currency_exchange_app, container, false);
 
+        SetUpperLowerCurrencyNames(view);
+
         Button quote = view.findViewById(R.id.quoteBtn);
         Switch currencySwitch = view.findViewById(R.id.currencySwitch);
 

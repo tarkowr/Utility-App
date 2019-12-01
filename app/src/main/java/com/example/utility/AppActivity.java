@@ -3,6 +3,8 @@ package com.example.utility;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -26,6 +28,9 @@ public class AppActivity extends AppCompatActivity {
 
         AppItem app = getAppFromIntent();
         getSupportActionBar().setTitle(JavaUtils.FormatActionBarText(app.getName(), AppActivity.this));
+
+        ImageView home = findViewById(R.id.imgHome);
+        home.setOnClickListener(onClickHome);
 
         fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.app_fragment_container);
@@ -53,4 +58,10 @@ public class AppActivity extends AppCompatActivity {
     public void onBackPressed() {
         finish();
     }
+
+    View.OnClickListener onClickHome = new View.OnClickListener() {
+        public void onClick(View view){
+            finish();
+        }
+    };
 }

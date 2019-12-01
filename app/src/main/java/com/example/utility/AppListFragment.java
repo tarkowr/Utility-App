@@ -60,8 +60,6 @@ public class AppListFragment extends Fragment {
     private OnItemClickListener onAppClickListener = new OnItemClickListener() {
         @Override
         public void onItemClick(AppItem app) {
-            // Intent intent = new Intent(getActivity(), app.getActivity());
-            // startActivity(intent);
             Intent intent = AppActivity.newIntent(getActivity(), app.getId());
             startActivity(intent);
         }

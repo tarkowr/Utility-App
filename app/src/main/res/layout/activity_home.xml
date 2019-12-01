@@ -15,7 +15,7 @@
         android:fontFamily="sans-serif-condensed-light"
         android:gravity="center_horizontal"
         android:text="@string/txt_welcome"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/colorPrimaryDark"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/home_fragment_container"
         app:layout_constraintEnd_toEndOf="parent"
