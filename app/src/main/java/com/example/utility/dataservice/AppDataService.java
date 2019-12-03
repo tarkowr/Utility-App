@@ -1,6 +1,7 @@
 package com.example.utility.dataservice;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.utility.R;
 import com.example.utility.apps.CurrencyExchangeAppFragment;
@@ -56,6 +57,26 @@ public class AppDataService {
         }
 
         return appItem;
+    }
+
+    public List<AppItem> ReturnAppsByName(String name){
+        List<AppItem> appList = new ArrayList<>();
+
+        if (name.equals(null) || name.isEmpty()){
+            return apps;
+        }
+
+        Integer size = name.length();
+
+        for(AppItem app : apps){
+            String appName = app.getName();
+            Integer substringEndIndex = (size < appName.length() ? size : appName.length());
+            if(appName.substring(0, substringEndIndex).toLowerCase().equals(name.toLowerCase())){
+                appList.add(app);
+            }
+        }
+
+        return appList;
     }
 
 }

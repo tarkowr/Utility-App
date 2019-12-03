@@ -15,6 +15,8 @@
     <string name="txt_account_name">Account Name:</string>
     <string name="app_content_desc">App Icon</string>
     <string name="app_home_icon">Home</string>
+    <string name="txt_search">Search</string>
+    <string name="txt_cancel">Cancel</string>
 
     <!--Stopwatch App-->
     <string name="app_stopwatch">Stopwatch</string>

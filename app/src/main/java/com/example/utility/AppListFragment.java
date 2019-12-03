@@ -2,9 +2,12 @@ package com.example.utility;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,13 +31,17 @@ public class AppListFragment extends Fragment {
 
     private RecyclerView appList;
     private final int NUM_COLS = 3;
-    private List<AppItem> apps = new ArrayList<>();
+    private List<AppItem> apps;
+    private AppAdapter adapter;
+    private AppDataService appDataService;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        this.apps = InitializeApps();
+
+        this.appDataService = AppDataService.get(getActivity());
+        this.apps = new ArrayList<>(this.appDataService.getApps());
     }
 
     @Override
@@ -44,16 +51,53 @@ public class AppListFragment extends Fragment {
         appList.setLayoutManager(new GridLayoutManager(getActivity(), NUM_COLS));
 
         setupAdapter();
+
+        final EditText searchBar = view.findViewById(R.id.app_search_bar);
+        searchBar.addTextChangedListener(search);
+
+        TextView cancel = view.findViewById(R.id.txtCancel);
+        cancel.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                searchBar.clearFocus();
+
+                if(!searchBar.getText().equals("")){
+                    searchBar.setText(null);
+                    handleAppSearch("");
+                }
+            }
+        });
+
         return view;
     }
 
-    private List<AppItem> InitializeApps(){
-        return AppDataService.get(getActivity()).getApps();
+    private TextWatcher search = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            handleAppSearch(charSequence.toString());
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) { }
+    };
+
+    private void handleAppSearch(String search){
+        apps.clear();
+        List<AppItem> appList = appDataService.ReturnAppsByName(search);
+
+        for(AppItem app : appList){
+            apps.add(app);
+        }
+
+        adapter.notifyDataSetChanged();
     }
 
     private void setupAdapter(){
         if(isAdded()){
-            appList.setAdapter(new AppAdapter(apps, onAppClickListener));
+            this.adapter = new AppAdapter(this.apps, onAppClickListener);
+            appList.setAdapter(this.adapter);
         }
     }
 
