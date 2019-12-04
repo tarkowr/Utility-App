@@ -34,6 +34,11 @@
     <string name="app_currency_exchange_convert_switch">Convert to USD</string>
     <string name="app_currency_exchange_quote_text">Quote</string>
 
+    <!--Coin Flip App-->
+    <string name="app_coin_flip">Flip Coin</string>
+    <string name="app_coin_flip_num_flip_hint">Number of Flips</string>
+    <string name="app_coin_flip_flip">Flip</string>
+
     <!--Task Manager App-->
     <string name="app_task_manager">Task Manager</string>
 </resources>

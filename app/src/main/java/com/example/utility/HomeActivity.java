@@ -59,6 +59,10 @@ public class HomeActivity extends AppCompatActivity {
         return UserDataService.get(HomeActivity.this).getUser(id);
     }
 
+    /*
+    https://developer.android.com/reference/android/support/design/widget/Snackbar
+    https://stackoverflow.com/questions/33517255/changing-typeface-of-snackbar/33517490
+     */
     private void showWelcomeSnackBar(String msg, Integer fontSize){
         Snackbar sb = Snackbar.make(findViewById(R.id.homeRootContstraintLayout), msg,
                 Snackbar.LENGTH_LONG);

@@ -44,4 +44,20 @@ public class JavaUtils {
             return 0;
         }
     }
+
+    /*
+    Long parse with try/catch for exception handling
+     */
+    public static long LongTryParse(String amount){
+        try{
+            long parsed = Long.parseLong(amount);
+            if (parsed == 0){
+                throw new Exception("Invalid Long");
+            }
+            return parsed;
+        }
+        catch (Exception e){
+            return 0;
+        }
+    }
 }

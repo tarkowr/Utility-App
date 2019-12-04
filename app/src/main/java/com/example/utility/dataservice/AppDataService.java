@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.utility.R;
+import com.example.utility.apps.CoinFlipFragment;
 import com.example.utility.apps.CurrencyExchangeAppFragment;
 import com.example.utility.apps.StopWatchAppFragment;
 import com.example.utility.models.AppItem;
@@ -44,6 +45,10 @@ public class AppDataService {
         appList.add(new AppItem(context.getResources().getString(R.string.app_stopwatch),
                 R.mipmap.ic_stopwatch,
                 new StopWatchAppFragment()));
+
+        appList.add(new AppItem(context.getResources().getString(R.string.app_coin_flip),
+                R.mipmap.ic_flip_coin,
+                new CoinFlipFragment()));
 
         return appList;
     }

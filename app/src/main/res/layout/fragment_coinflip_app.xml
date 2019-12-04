@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusableInTouchMode="true">
+
+    <EditText
+        android:id="@+id/editTextNumFlips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="8dp"
+        android:ems="10"
+        android:hint="@string/app_coin_flip_num_flip_hint"
+        android:inputType="number" />
+
+    <Button
+        android:id="@+id/btnFlip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="8dp"
+        android:background="@color/colorPrimary"
+        android:text="@string/app_coin_flip_flip"
+        android:textColor="@android:color/white"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/txtHeads"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="8dp"
+        android:fontFamily="sans-serif-condensed-light"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/txtTails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="8dp"
+        android:fontFamily="sans-serif-condensed-light"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="24sp" />
+
+    <ProgressBar
+        android:id="@+id/progressBarFlip"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="36dp"
+        android:progressDrawable="@color/colorPrimary"
+        android:progressTint="@color/colorPrimary"
+        android:visibility="visible"/>
+</LinearLayout>
