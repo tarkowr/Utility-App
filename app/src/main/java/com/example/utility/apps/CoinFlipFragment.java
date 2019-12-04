@@ -17,18 +17,24 @@ import androidx.fragment.app.Fragment;
 import com.example.utility.R;
 import com.example.utility.helpers.JavaUtils;
 
+import java.text.DecimalFormat;
 import java.util.Random;
 
 public class CoinFlipFragment extends Fragment {
-    private Random rand;
-    private long totalHeads;
-    private long totalTails;
     private ProgressBar progressBar;
     private EditText editNumOfFlips;
     private TextView txtHeads;
     private TextView txtTails;
+    private TextView txtStatus;
+    private Button flipBtn;
+
+    private Random rand;
+    private long totalHeads;
+    private long totalTails;
     private long numOfFlips;
+
     private final String DEFAULT_FLIPS = "1";
+    private final long MAX_FLIPS = 100000000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,23 +59,28 @@ public class CoinFlipFragment extends Fragment {
 
         txtHeads = view.findViewById(R.id.txtHeads);
         txtTails = view.findViewById(R.id.txtTails);
+        txtStatus = view.findViewById(R.id.txtStatus);
 
-        Button submit = view.findViewById(R.id.btnFlip);
-        submit.setOnClickListener(flip);
+        flipBtn = view.findViewById(R.id.btnFlip);
+        flipBtn.setOnClickListener(flip);
 
         return view;
     }
 
     View.OnClickListener flip = new View.OnClickListener() {
         public void onClick(View view) {
-            view = getView();
+            setFlipResults(null, null);
+            txtStatus.setText(null);
 
-            txtHeads.setText(null);
-            txtTails.setText(null);
+            numOfFlips = JavaUtils.LongTryParse(editNumOfFlips.getText().toString());
+
+            if(numOfFlips > MAX_FLIPS){
+                txtStatus.setText(R.string.app_coin_flip_error_max);
+                return;
+            }
 
             progressBar.setVisibility(View.VISIBLE);
-            view.findViewById(R.id.btnFlip).setEnabled(false);
-            numOfFlips = JavaUtils.LongTryParse(editNumOfFlips.getText().toString());
+            flipBtn.setEnabled(false);
 
             new FlipCoinsAsync().execute();
         }
@@ -79,7 +90,7 @@ public class CoinFlipFragment extends Fragment {
         return rand.nextBoolean() ? CoinState.Heads : CoinState.Tails;
     }
 
-    private void handleFlipCoins(){
+    private void flipCoins(){
         for(int i=0; i < numOfFlips; i++){
             if(flipCoin().equals(CoinState.Heads)){
                 totalHeads++;
@@ -90,16 +101,24 @@ public class CoinFlipFragment extends Fragment {
         }
     }
 
-    private void updateUIResults(){
+    private void setFlipResults(String headStr, String tailStr){
+        txtHeads.setText(headStr);
+        txtTails.setText(tailStr);
+    }
+
+    private void onFlipComplete(){
         getActivity().runOnUiThread(new Runnable() {
 
             @Override
             public void run() {
-                View view = getView();
-                view.findViewById(R.id.btnFlip).setEnabled(true);
-                txtHeads.setText("Heads: " + totalHeads);
-                txtTails.setText("Tails: " + totalTails);
+                DecimalFormat formatter = new DecimalFormat("###,###");
+
+                flipBtn.setEnabled(true);
+                setFlipResults("Heads: " + formatter.format(totalHeads), "Tails: " + formatter.format(totalTails));
                 progressBar.setVisibility(View.INVISIBLE);
+
+                totalHeads = 0;
+                totalTails = 0;
             }
         });
     }
@@ -116,7 +135,7 @@ public class CoinFlipFragment extends Fragment {
 
         @Override
         protected String doInBackground(String... args) {
-            handleFlipCoins();
+            flipCoins();
             return null;
         }
 
@@ -125,9 +144,7 @@ public class CoinFlipFragment extends Fragment {
 
         @Override
         protected void onPostExecute(String status) {
-            updateUIResults();
-            totalHeads = 0;
-            totalTails = 0;
+            onFlipComplete();
         }
     }
 }
