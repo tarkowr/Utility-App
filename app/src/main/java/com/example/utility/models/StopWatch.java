@@ -24,7 +24,6 @@ public class StopWatch {
     {
         if(!isCounting)
         {
-            this.reset();
             stopWatch.start();
             isCounting = true;
         }

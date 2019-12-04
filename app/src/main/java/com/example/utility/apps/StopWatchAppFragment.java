@@ -1,6 +1,7 @@
 package com.example.utility.apps;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,9 @@ import com.example.utility.models.StopWatch;
 public class StopWatchAppFragment extends Fragment {
     private Chronometer chronometer;
     private StopWatch stopWatch;
+    private Button startPause;
+    private Button reset;
+    private long stopTime;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -29,13 +33,6 @@ public class StopWatchAppFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_stopwatch_app, container, false);
         InitializeStopWatch(view);
-
-        Button start = view.findViewById(R.id.btnStart);
-        Button reset = view.findViewById(R.id.btnReset);
-
-        start.setOnClickListener(startWatch);
-        reset.setOnClickListener(resetWatch);
-
         return view;
     }
 
@@ -46,15 +43,31 @@ public class StopWatchAppFragment extends Fragment {
     {
         chronometer = view.findViewById(R.id.stopwatch);
         stopWatch = new StopWatch(chronometer);
+        startPause = view.findViewById(R.id.btnStartPause);
+        reset = view.findViewById(R.id.btnReset);
+        stopTime = 0;
+
+        startPause.setOnClickListener(startPauseWatch);
+        reset.setOnClickListener(resetWatch);
         Log.d("Chronometer Base Time", Long.toString(chronometer.getBase()));
     }
 
     /*
-    Start stopwatch onClick event
+    Start/Pause stopwatch onClick event
+    Referenced https://stackoverflow.com/questions/19194302/android-chronometer-resume-function to pause/resume chronometer
      */
-    View.OnClickListener startWatch = new View.OnClickListener() {
+    View.OnClickListener startPauseWatch = new View.OnClickListener() {
         public void onClick(View view){
-            stopWatch.start();
+            if(stopWatch.isCounting){
+                stopTime = chronometer.getBase() - SystemClock.elapsedRealtime();
+                stopWatch.stop();
+            }
+            else{
+                chronometer.setBase(SystemClock.elapsedRealtime() + stopTime);
+                stopWatch.start();
+            }
+
+            toggleStartPauseButton(!stopWatch.isCounting); // Reverse since stopWatch toggles isCounting on stop() and start()
         }
     };
 
@@ -63,7 +76,22 @@ public class StopWatchAppFragment extends Fragment {
      */
     View.OnClickListener resetWatch = new View.OnClickListener() {
         public void onClick(View view){
+            stopTime = 0;
             stopWatch.reset();
+            toggleStartPauseButton(true);
         }
     };
+
+    private void toggleStartPauseButton(boolean setStart){
+        if(setStart){
+            startPause.setText(getResources().getText(R.string.app_stopwatch_start_btn));
+            startPause.setBackground(getResources().getDrawable(R.drawable.circle_button));
+            startPause.setTextColor(getResources().getColor(R.color.colorWhite));
+        }
+        else{
+            startPause.setText(getResources().getText(R.string.app_stopwatch_stop_btn));
+            startPause.setBackground(getResources().getDrawable(R.drawable.circle_button_hollow));
+            startPause.setTextColor(getResources().getColor(R.color.colorPrimary));
+        }
+    }
 }

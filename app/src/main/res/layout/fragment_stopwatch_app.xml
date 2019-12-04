@@ -21,29 +21,31 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/btnStart"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
+        android:id="@+id/btnStartPause"
+        android:layout_width="85dp"
+        android:layout_height="85dp"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="60dp"
-        android:background="@color/colorPrimary"
+        android:background="@drawable/circle_button"
         android:text="@string/app_stopwatch_start_btn"
         android:textColor="#FFFFFF"
-        app:layout_constraintEnd_toStartOf="@+id/btnReset"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnReset"
         app:layout_constraintTop_toBottomOf="@+id/stopwatch" />
 
     <Button
         android:id="@+id/btnReset"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
+        android:layout_width="85dp"
+        android:layout_height="85dp"
         android:layout_marginTop="60dp"
-        android:background="@color/colorPrimary"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/circle_button"
         android:text="@string/app_stopwatch_reset_btn"
         android:textColor="#FFFFFF"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/btnStart"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@+id/btnStartPause"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/stopwatch" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
