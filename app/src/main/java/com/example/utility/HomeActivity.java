@@ -7,10 +7,12 @@ import androidx.fragment.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 import com.example.utility.dataservice.UserDataService;
 import com.example.utility.models.User;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.UUID;
 
@@ -23,13 +25,17 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        TextView welcomeTitle = findViewById(R.id.txtWelcome);
+
+        String welcomeMsg = getResources().getString(R.string.txt_welcome);
+        Integer sbFontSize = 20;
 
         User user = getUserFromIntent();
 
         if(!user.getUsername().isEmpty()){
-            welcomeTitle.setText("Welcome, " + user.getUsername() + "!");
+            welcomeMsg = "Welcome, " + user.getUsername() + "!";
         }
+
+        showWelcomeSnackBar(welcomeMsg, sbFontSize);
 
         fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.home_fragment_container);
@@ -51,5 +57,16 @@ public class HomeActivity extends AppCompatActivity {
     private User getUserFromIntent(){
         UUID id = (UUID)getIntent().getSerializableExtra(HomeActivity.EXTRA_USER_ID);
         return UserDataService.get(HomeActivity.this).getUser(id);
+    }
+
+    private void showWelcomeSnackBar(String msg, Integer fontSize){
+        Snackbar sb = Snackbar.make(findViewById(R.id.homeRootContstraintLayout), msg,
+                Snackbar.LENGTH_LONG);
+
+        TextView sbTextView = sb.getView().findViewById(R.id.snackbar_text);
+        sbTextView.setTextSize( fontSize );
+        sbTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+
+        sb.show();
     }
 }
