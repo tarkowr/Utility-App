@@ -4,45 +4,70 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Switch;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.utility.R;
+import com.example.utility.helpers.HttpHelper;
 import com.example.utility.helpers.JavaUtils;
+import com.example.utility.models.ExchangeRate;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class CurrencyExchangeAppFragment extends Fragment {
+    private ProgressBar progressBar;
+    private TextView txtStatus;
+    private EditText editAmount;
+    private Button quoteBtn;
 
-    final String usd = "USD";
-    final String gbp = "GBP";
+    private ExchangeRate exchangeRate;
+    private double amount;
+    private double conversionRate;
+    private String currencyTop = "USD";
+    private String currencyBottom = "GBP";
+    private Timer timer;
+    private Boolean useCachedResults;
 
-    boolean usdToGbp = true;
-    double conversionRate = 1.23;
+    private final String API_URL = "https://api.exchangeratesapi.io/latest?base=";
+    private final Integer MAX_DELAY = 1000;
+    private final Integer REFRESH_DELAY = 10000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+
+        amount = 0;
+        conversionRate = 0;
+        useCachedResults = false;
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_currency_exchange_app, container, false);
 
+        editAmount = view.findViewById(R.id.currencyAmountNum);
+        txtStatus = view.findViewById(R.id.txtStatus);
+
+        quoteBtn = view.findViewById(R.id.quoteBtn);
+        quoteBtn.setOnClickListener(getQuote);
+
+        progressBar = view.findViewById(R.id.progressBarCurrency);
+        progressBar.setVisibility(View.INVISIBLE);
+
         SetUpperLowerCurrencyNames(view);
-
-        Button quote = view.findViewById(R.id.quoteBtn);
-        Switch currencySwitch = view.findViewById(R.id.currencySwitch);
-
-        quote.setOnClickListener(getQuote);
-        currencySwitch.setOnClickListener(switchCurrency);
 
         return view;
     }
@@ -51,80 +76,32 @@ public class CurrencyExchangeAppFragment extends Fragment {
      Quote Button onClick event - Performs input validation
      */
     View.OnClickListener getQuote = new View.OnClickListener() {
-        public void onClick(View view)
+        public void onClick(View view) // use getView() if view is needed in this event
         {
-            view = getView();
-            final EditText amount = view.findViewById(R.id.currencyAmountNum);
-            final Double lowerLimit = 0.0;
+            final Double LOWER_LIMIT = 0.0;
+            final Double UPPER_LIMIT = 1000000000.0;
 
-            double amountDouble;
+            String amountString = JavaUtils.GetWidgetText(editAmount);
+            txtStatus.setText(null);
 
-            String amountString = GetWidgetText(amount);
-
-            if(CheckIfEmptyString(amountString)){
-                JavaUtils.ShowToast(getActivity(), R.string.app_currency_exchange_invalid_amount);
+            if(JavaUtils.CheckIfEmptyString(amountString)){
+                txtStatus.setText(R.string.app_currency_exchange_invalid_amount);
                 return;
             }
 
-            amountDouble = JavaUtils.DoubleTryParse(amountString);
+            amount = JavaUtils.DoubleTryParse(amountString);
 
-            if(amountDouble == 0){
-                JavaUtils.ShowToast(getActivity(), R.string.app_currency_exchange_invalid_amount);
+            if(!JavaUtils.ValidRange(amount, LOWER_LIMIT, UPPER_LIMIT)){
+                txtStatus.setText(R.string.app_currency_exchange_invalid_amount);
                 return;
             }
 
-            if(!ValidAmountLowerRange(amountDouble, lowerLimit)){
-                JavaUtils.ShowToast(getActivity(), R.string.app_currency_exchange_invalid_amount);
-                return;
-            }
+            quoteBtn.setEnabled(false);
+            progressBar.setVisibility(View.VISIBLE);
 
-            DisplayResults(amountDouble, view);
+            new GetExchangeRateAsync().execute();
         }
     };
-
-    /*
-    Switch onClick event - Toggles conversion direction
-     */
-    View.OnClickListener switchCurrency = new View.OnClickListener() {
-        public void onClick(View view){
-            view = getView();
-            usdToGbp = !usdToGbp;
-
-            SetUpperLowerCurrencyNames(view);
-            String currentResult = ((TextView)view.findViewById(R.id.topConverted)).getText().toString();
-
-            if(!CheckIfEmptyString(currentResult)){
-                DisplayResults(JavaUtils.DoubleTryParse(currentResult), view);
-            }
-        }
-    };
-
-    /*
-    Gets the calculated exchange value and displays the results in the UI
-     */
-    private void DisplayResults(double amount, View view){
-        DecimalFormat format = new DecimalFormat("#.##");
-        String topRate, bottomRate, a, b;
-        Double result;
-
-        a = ReadConversion(gbp, usd, conversionRate);
-        b = ReadConversion(usd, gbp, Math.round(1/conversionRate * 100.0)/100.0);
-
-        if(usdToGbp){
-            topRate = b;
-            bottomRate = a;
-        }
-        else{
-            topRate = a;
-            bottomRate = b;
-        }
-
-        result = Convert(usdToGbp, amount);
-
-        SetUpperLowerCurrencies(format.format(amount), format.format(result), view);
-        ((TextView)view.findViewById(R.id.topConversionRate)).setText(topRate);
-        ((TextView)view.findViewById(R.id.bottomConversionRate)).setText(bottomRate);
-    }
 
     /*
     Sets a currency in the top and bottom slots in the UI
@@ -133,14 +110,8 @@ public class CurrencyExchangeAppFragment extends Fragment {
         final TextView topCurrencyName = view.findViewById(R.id.topCurrencyName);
         final TextView bottomCurrencyName = view.findViewById(R.id.bottomCurrencyName);
 
-        if(usdToGbp){
-            topCurrencyName.setText(usd);
-            bottomCurrencyName.setText(gbp);
-        }
-        else{
-            topCurrencyName.setText(gbp);
-            bottomCurrencyName.setText(usd);
-        }
+        topCurrencyName.setText(currencyTop);
+        bottomCurrencyName.setText(currencyBottom);
     }
 
     /*
@@ -155,46 +126,167 @@ public class CurrencyExchangeAppFragment extends Fragment {
     }
 
     /*
-    Determines whether a string is empty
+    Sets the conversation rate values in the UI
      */
-    private boolean CheckIfEmptyString(String str){
-        return str == null || str == "";
+    private void SetUpperLowerConversion(String topConversion, String bottomConversion, View view){
+        TextView topConversionRate = view.findViewById(R.id.topConversionRate);
+        TextView bottomConversionRate = view.findViewById(R.id.bottomConversionRate);
+
+        topConversionRate.setText(topConversion);
+        bottomConversionRate.setText(bottomConversion);
     }
 
     /*
     Converts a currency to another with the conversion rate
      */
-    private double Convert(boolean usdToGbp, double amount){
-        if(usdToGbp){
-            return amount/conversionRate;
-        }
-        else{
-            return amount * conversionRate;
-        }
-    }
-
-    /*
-    Checks if the user's amount input is above a minimum value
-     */
-    private boolean ValidAmountLowerRange(double amount, double lowerRange){
-        return amount > lowerRange;
-    }
-
-    /*
-    Retrieves the text from a EditText widget
-     */
-    private String GetWidgetText(EditText widget){
-        try{
-            return widget.getText().toString();
-        } catch (Exception e){
-            return null;
-        }
+    private double Convert(double amount){
+        return amount * conversionRate;
     }
 
     /*
     Format the conversion rate string
      */
-    public static String ReadConversion(String a, String b, Double rate){
+    private String ReadConversion(String a, String b, Double rate){
         return "1 " + a + " = " + rate + " " + b;
+    }
+
+    /*
+    Concatenates the base currency to the API URL as a query parameter
+     */
+    private String formatUrl(String base){
+        return API_URL + base.toUpperCase();
+    }
+
+    /*
+    Using the https://exchangeratesapi.io/ API
+     */
+    private StringBuffer getExchangeRate(String base){
+        StringBuffer httpResults;
+
+        try{
+            HttpHelper httpHelper = new HttpHelper(formatUrl(base));
+            httpResults = httpHelper.Get();
+        }
+        catch (IOException exception){
+            Log.d("ERROR", exception.getMessage());
+            httpResults = null;
+        }
+
+        JavaUtils.pauseUI(JavaUtils.returnRandomInt(MAX_DELAY));
+
+        return httpResults;
+    }
+
+    /*
+    Using Jackson https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core to parse the json String into a Java Object
+    Referenced https://www.codexpedia.com/java/jackson-parser-example-in-android/ to learn how to convert json to an object
+     */
+    private ExchangeRate parseResults(String json){
+        ObjectMapper mapper = new ObjectMapper();
+
+        try{
+            exchangeRate = mapper.readValue(json, ExchangeRate.class);
+        }
+        catch (Exception ex){
+            Log.d("ERROR", ex.getMessage());
+            exchangeRate = null;
+        }
+
+        return exchangeRate;
+    }
+
+    /*
+    Gets the calculated exchange value and displays the results in the UI
+     */
+    private void DisplayResults(){
+        final View view = getView();
+        final DecimalFormat format = new DecimalFormat("#.##");
+
+        getActivity().runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                String topRate, bottomRate;
+                Double result;
+
+                conversionRate = exchangeRate.getRateBySymbol(currencyBottom);
+                conversionRate = Math.round(conversionRate * 100.0) / 100.0;
+
+                topRate = ReadConversion(currencyTop, currencyBottom, conversionRate);
+                bottomRate = ReadConversion(currencyBottom, currencyTop, Math.round(1/conversionRate * 100.0)/100.0);
+
+                result = Convert(amount);
+
+                SetUpperLowerCurrencies(format.format(amount), format.format(result), view);
+                SetUpperLowerConversion(topRate, bottomRate, view);
+
+                quoteBtn.setEnabled(true);
+                progressBar.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
+
+    private void DisplayApiError(){
+        getActivity().runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                txtStatus.setText(R.string.app_currency_exchange_api_error);
+            }
+        });
+    }
+
+    /*
+    Learned how to run asynchronous tasks from https://developer.android.com/reference/android/os/AsyncTask
+     */
+    private class GetExchangeRateAsync extends AsyncTask<String, String, ExchangeRate> {
+
+        @Override
+        protected ExchangeRate doInBackground(String... args) {
+            if(!useCachedResults || exchangeRate.rates.isEmpty()){
+                StringBuffer json = getExchangeRate(currencyTop);
+
+                if(json != null){
+                    exchangeRate = parseResults(json.toString());
+
+                    useCachedResults = true;
+                    timer = new Timer();
+                    timer.schedule(new CustomTimerTask(), REFRESH_DELAY);
+
+                    return exchangeRate;
+                }
+                else{
+                    DisplayApiError();
+                    return null;
+                }
+            }
+            else{
+                return exchangeRate;
+            }
+        }
+
+        @Override
+        protected void onProgressUpdate(String... progress) { }
+
+        @Override
+        protected void onPostExecute(ExchangeRate _exchangeRate) {
+            if(_exchangeRate != null){
+                DisplayResults();
+            }
+            else{
+                DisplayApiError();
+            }
+        }
+    }
+
+    private class CustomTimerTask extends TimerTask {
+
+        @Override
+        public void run() {
+            useCachedResults = false;
+            cancel();
+            timer.cancel();
+            timer.purge();
+        }
     }
 }

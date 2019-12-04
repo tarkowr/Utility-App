@@ -10,8 +10,10 @@
         android:id="@+id/topConversionLayout"
         android:layout_width="match_parent"
         android:layout_height="120sp"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="74dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/topCurrencyName"
@@ -70,8 +72,10 @@
         android:layout_width="match_parent"
         android:layout_height="120sp"
         android:layout_marginTop="1dp"
-        app:layout_constraintTop_toBottomOf="@+id/topConversionLayout"
-        tools:layout_editor_absoluteX="-16dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/topConversionLayout">
 
         <TextView
             android:id="@+id/convertedToTxt"
@@ -130,7 +134,7 @@
         android:id="@+id/quoteBtn"
         android:layout_width="300sp"
         android:layout_height="60sp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="36dp"
         android:background="@color/colorPrimary"
         android:text="@string/app_currency_exchange_quote_text"
         android:textColor="#FFFFFF"
@@ -138,7 +142,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/currencySwitch" />
+        app:layout_constraintTop_toBottomOf="@+id/currencyAmountNum" />
 
     <EditText
         android:id="@+id/currencyAmountNum"
@@ -155,16 +159,33 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bottomConversionLayout" />
 
-    <Switch
-        android:id="@+id/currencySwitch"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/txtStatus"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="@string/app_currency_exchange_convert_switch"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginRight="16dp"
+        android:fontFamily="sans-serif-condensed-light"
+        android:gravity="center_horizontal"
+        android:textColor="@color/colorAccent"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/currencyAmountNum" />
+        app:layout_constraintTop_toBottomOf="@+id/quoteBtn" />
+
+    <ProgressBar
+        android:id="@+id/progressBarCurrency"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:indeterminateTint="@color/colorPrimary"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtStatus" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

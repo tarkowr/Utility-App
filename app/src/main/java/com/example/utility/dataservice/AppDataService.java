@@ -1,7 +1,6 @@
 package com.example.utility.dataservice;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.example.utility.R;
 import com.example.utility.apps.CoinFlipFragment;

@@ -28,6 +28,7 @@
     <!--Currency Exchange App-->
     <string name="app_currency_exchange">Currency Exchange</string>
     <string name="app_currency_exchange_invalid_amount">Invalid Amount!</string>
+    <string name="app_currency_exchange_api_error">Unable to Retrieve Exchange Rate Data!</string>
     <string name="app_currency_exchange_my_currency">My Currency</string>
     <string name="app_currency_exchange_converted_to">Converted To</string>
     <string name="app_currency_exchange_amount_hint">Amount</string>
