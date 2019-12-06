@@ -33,7 +33,6 @@ public class CoinFlipFragment extends Fragment {
     private long totalTails;
     private long numOfFlips;
 
-    private final String DEFAULT_FLIPS = "1";
     private final long MAX_FLIPS = 100000000;
 
     @Override
@@ -52,7 +51,6 @@ public class CoinFlipFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_coinflip_app, container, false);
 
         editNumOfFlips = view.findViewById(R.id.editTextNumFlips);
-        editNumOfFlips.setText(DEFAULT_FLIPS);
 
         progressBar = view.findViewById(R.id.progressBarFlip);
         progressBar.setVisibility(View.INVISIBLE);
