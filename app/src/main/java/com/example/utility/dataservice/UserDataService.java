@@ -15,6 +15,10 @@ public class UserDataService {
     private Context context;
     private SQLiteDatabase database;
 
+    /*
+    Ensures only one instance of this class exists during the app's lifecycle
+    Referenced Android Programming by The Big Nerd Ranch Guide
+     */
     public static UserDataService get(Context _context){
         if(userDataService == null){
             userDataService = new UserDataService(_context);
@@ -28,11 +32,19 @@ public class UserDataService {
         this.database = new UserDatabase(this.context).getWritableDatabase();
     }
 
+    /*
+    Inserts a user into the User Table
+    Referenced Android Programming by The Big Nerd Ranch Guide
+     */
     public void addUser(User user){
         ContentValues cv = getContentValues(user);
         database.insert(UserSchema.UserTable.NAME, null, cv);
     }
 
+    /*
+    Updates a user's information in the User Table
+    Referenced Android Programming by The Big Nerd Ranch Guide
+     */
     public void updateUser(User user){
         ContentValues cv = getContentValues(user);
         String id = user.getId().toString();
@@ -40,6 +52,9 @@ public class UserDataService {
         database.update(UserSchema.UserTable.NAME, cv, UserSchema.UserTable.Cols.UUID + " = ?", new String[] { id });
     }
 
+    /*
+    Returns the first (default) user in the User Table
+     */
     public User getDefaultUser(){
         UserCursorWrapper cursor = queryUser(null, null);
 
@@ -51,11 +66,18 @@ public class UserDataService {
             cursor.moveToFirst();
             return cursor.getUser();
         }
+        catch (Exception ex){
+            return null;
+        }
         finally {
             cursor.close();
         }
     }
 
+    /*
+    Returns a user from the User Table by ID
+    Referenced Android Programming by The Big Nerd Ranch Guide
+     */
     public User getUser(UUID id){
         UserCursorWrapper cursor = queryUser(
                 UserSchema.UserTable.Cols.UUID + " = ?",
@@ -75,6 +97,10 @@ public class UserDataService {
         }
     }
 
+    /*
+    Maps the user object to User Table columns
+    Referenced Android Programming by The Big Nerd Ranch Guide
+     */
     private static ContentValues getContentValues(User user){
         ContentValues values = new ContentValues();
         values.put(UserSchema.UserTable.Cols.UUID, user.getId().toString());
@@ -83,6 +109,10 @@ public class UserDataService {
         return values;
     }
 
+    /*
+    Queries the User Table for users with SQL query
+    Referenced Android Programming by The Big Nerd Ranch Guide
+     */
     private UserCursorWrapper queryUser(String where, String[] whereArgs){
         Cursor cursor = database.query(UserSchema.UserTable.NAME,
                 null,

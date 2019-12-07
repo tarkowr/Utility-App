@@ -15,6 +15,11 @@ public class HttpHelper {
         this.url = new URL(_url);
     }
 
+    /*
+    Makes a GET Web API request and returns the response (not parsed)
+    Learned how to call an API in Java from https://stackoverflow.com/questions/1485708/how-do-i-do-a-http-get-in-java
+        and https://www.baeldung.com/java-http-request
+     */
     public StringBuffer Get() throws IOException {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");

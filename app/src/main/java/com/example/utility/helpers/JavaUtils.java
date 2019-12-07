@@ -11,10 +11,16 @@ import java.util.Random;
 public class JavaUtils {
     private static Random random = new Random();
 
+    /*
+    Return a random integer between 0 and a maximum value
+     */
     public static Integer returnRandomInt(int max){
         return random.nextInt(max);
     }
 
+    /*
+    Pause the user interface of the app
+     */
     public static void pauseUI(int delay){
         try{
             Thread.sleep(delay);
@@ -22,10 +28,16 @@ public class JavaUtils {
         catch (InterruptedException ex){ }
     }
 
+    /*
+    Display toast on the screen
+     */
     public static void ShowToast(Context context, int stringResource){
         Toast.makeText(context, stringResource, Toast.LENGTH_SHORT).show();
     }
 
+    /*
+    Concatenate the app's name to the default action bar text
+     */
     public static String FormatActionBarText(String appName, Context context){
         return context.getResources().getString(R.string.app_name) + " - " + appName;
     }
@@ -34,7 +46,7 @@ public class JavaUtils {
     Determines whether a string is empty
      */
     public static boolean CheckIfEmptyString(String str){
-        return str.equals(null) || str.equals("");
+        return str == null || str.isEmpty();
     }
 
     /*

@@ -65,7 +65,10 @@ public class CoinFlipFragment extends Fragment {
         return view;
     }
 
-    View.OnClickListener flip = new View.OnClickListener() {
+    /*
+    Flip button onClick event - Handles input validation and flips
+     */
+    private View.OnClickListener flip = new View.OnClickListener() {
         public void onClick(View view) {
             setFlipResults(null, null);
             txtStatus.setText(null);
@@ -84,13 +87,19 @@ public class CoinFlipFragment extends Fragment {
         }
     };
 
-    private CoinState flipCoin(){
-        return rand.nextBoolean() ? CoinState.Heads : CoinState.Tails;
+    /*
+    Virtually "flips a coin" with Heads/Tails represented by a boolean
+     */
+    private boolean flipCoin(){
+        return rand.nextBoolean();
     }
 
+    /*
+    Virtually "flips multiple coins" and tallies the results
+     */
     private void flipCoins(){
         for(int i=0; i < numOfFlips; i++){
-            if(flipCoin().equals(CoinState.Heads)){
+            if(flipCoin()){
                 totalHeads++;
             }
             else{
@@ -99,12 +108,22 @@ public class CoinFlipFragment extends Fragment {
         }
     }
 
+    /*
+    Sets the heads/tails results in the UI
+     */
     private void setFlipResults(String headStr, String tailStr){
         txtHeads.setText(headStr);
         txtTails.setText(tailStr);
     }
 
+    /*
+    onComplete event for flip async task - Updates UI with results
+     */
     private void onFlipComplete(){
+        if(getActivity() == null){
+            return;
+        }
+
         getActivity().runOnUiThread(new Runnable() {
 
             @Override
@@ -121,13 +140,9 @@ public class CoinFlipFragment extends Fragment {
         });
     }
 
-    private enum CoinState{
-        Heads,
-        Tails
-    }
-
     /*
-    https://developer.android.com/reference/android/os/AsyncTask
+    Flips the specified number of coins asynchronously
+    Learned about async tasks from https://developer.android.com/reference/android/os/AsyncTask
      */
     private class FlipCoinsAsync extends AsyncTask<String, String, String> {
 

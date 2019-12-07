@@ -53,7 +53,6 @@ public class CurrencyExchangeAppFragment extends Fragment {
     private final String APP_TAG = "CURRENCY_EXCHANGE_APP";
     private final String API_URL_RATES = "https://api.exchangeratesapi.io/latest?base=";
     private final String API_URL_CURRENCIES = "https://api.exchangeratesapi.io/latest";
-    private final Integer MAX_DELAY = 1000;
     private final Integer REFRESH_DELAY = 60000;
 
     @Override
@@ -89,11 +88,11 @@ public class CurrencyExchangeAppFragment extends Fragment {
     /*
      Quote Button onClick event - Performs input validation
      */
-    View.OnClickListener getQuote = new View.OnClickListener() {
+    private View.OnClickListener getQuote = new View.OnClickListener() {
         public void onClick(View view) // use getView() if view is needed in this event
         {
-            final Double LOWER_LIMIT = 0.0;
-            final Double UPPER_LIMIT = 1000000000.0;
+            final double LOWER_LIMIT = 0.0;
+            final double UPPER_LIMIT = 1000000000.0;
 
             currencyTop = topCurrencySpinner.getSelectedItem().toString();
             currencyBottom = bottomCurrencySpinner.getSelectedItem().toString();
@@ -108,6 +107,11 @@ public class CurrencyExchangeAppFragment extends Fragment {
 
             if(currencyTop.equals(currencyBottom)){
                 txtStatus.setText(R.string.app_currency_exchange_same_currency);
+                return;
+            }
+
+            if(!useCachedResults.containsKey(currencyTop)){
+                txtStatus.setText(R.string.app_currency_exchange_invalid_currency);
                 return;
             }
 
@@ -133,6 +137,9 @@ public class CurrencyExchangeAppFragment extends Fragment {
         }
     };
 
+    /*
+    Initialize the two currency spinners and call the Async task to get currencies from API
+     */
     private void InitializeSpinners(View view){
         topCurrencySpinner = view.findViewById(R.id.topCurrencySpinner);
         bottomCurrencySpinner = view.findViewById(R.id.bottomCurrencySpinner);
@@ -186,10 +193,16 @@ public class CurrencyExchangeAppFragment extends Fragment {
         return API_URL_RATES + base.toUpperCase();
     }
 
+    /*
+    Returns the API URL for getting all Currencies
+     */
     private String getCurrencyUrl(){
         return API_URL_CURRENCIES;
     }
 
+    /*
+    Extracts the abbreviation of each currency and appends to string array
+     */
     private String[] extractCurrencies(ExchangeRate _exchangeRate){
         int length = _exchangeRate.rates.size() + 1;
         int index = 0;
@@ -206,17 +219,18 @@ public class CurrencyExchangeAppFragment extends Fragment {
 
             currencies[index] = baseCurr;
             useCachedResults.put(baseCurr, false);
+
+            Arrays.sort(currencies);
         }
         catch (Exception ex){
             Log.d(APP_TAG, Objects.requireNonNull(ex.getMessage()));
         }
 
-        Arrays.sort(currencies);
         return currencies;
     }
 
     /*
-    Using the https://exchangeratesapi.io/ API
+    Using the https://exchangeratesapi.io/ API to retrieve live currency data
      */
     private StringBuffer getExchangeRate(String url){
         StringBuffer httpResults;
@@ -230,7 +244,6 @@ public class CurrencyExchangeAppFragment extends Fragment {
             httpResults = null;
         }
 
-        JavaUtils.pauseUI(JavaUtils.returnRandomInt(MAX_DELAY));
         return httpResults;
     }
 
@@ -254,11 +267,38 @@ public class CurrencyExchangeAppFragment extends Fragment {
     }
 
     /*
+    Populates the currency spinner widgets with the currencies returned from the API
+     */
+    private void DisplayCurrencyOptions(){
+        if(getActivity() == null){
+            return;
+        }
+
+        getActivity().runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, availableCurrencies);
+
+                topCurrencySpinner.setAdapter(adapter);
+                bottomCurrencySpinner.setAdapter(adapter);
+
+                quoteBtn.setEnabled(true);
+                progressBar.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
+
+    /*
     Gets the calculated exchange value and displays the results in the UI
      */
     private void DisplayResults(){
         final View view = getView();
         final DecimalFormat format = new DecimalFormat("#,###.##");
+
+        if(getActivity() == null){
+            return;
+        }
 
         getActivity().runOnUiThread(new Runnable() {
 
@@ -284,23 +324,14 @@ public class CurrencyExchangeAppFragment extends Fragment {
         });
     }
 
-    private void DisplayCurrencyOptions(){
-        getActivity().runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, availableCurrencies);
-
-                topCurrencySpinner.setAdapter(adapter);
-                bottomCurrencySpinner.setAdapter(adapter);
-
-                quoteBtn.setEnabled(true);
-                progressBar.setVisibility(View.INVISIBLE);
-            }
-        });
-    }
-
+    /*
+    Display an error if an API called return null or timed out
+     */
     private void DisplayApiError(){
+        if(getActivity() == null){
+            return;
+        }
+
         getActivity().runOnUiThread(new Runnable() {
 
             @Override
@@ -313,8 +344,8 @@ public class CurrencyExchangeAppFragment extends Fragment {
     }
 
     /*
-Learned how to run asynchronous tasks from https://developer.android.com/reference/android/os/AsyncTask
- */
+    Learned how to run asynchronous tasks from https://developer.android.com/reference/android/os/AsyncTask
+     */
     private class GetCurrenciesAsync extends AsyncTask<String, String, String[]> {
 
         @Override
@@ -350,7 +381,6 @@ Learned how to run asynchronous tasks from https://developer.android.com/referen
     Learned how to run asynchronous tasks from https://developer.android.com/reference/android/os/AsyncTask
      */
     private class GetExchangeRateAsync extends AsyncTask<String, String, ExchangeRate> {
-
         @Override
         protected ExchangeRate doInBackground(String... args) {
             String baseCurr = currencyTop;
@@ -392,11 +422,14 @@ Learned how to run asynchronous tasks from https://developer.android.com/referen
         }
     }
 
+    /*
+    Class that extends TimerTask to add additional functionality
+     */
     private class CustomTimerTask extends TimerTask {
 
         private String key;
 
-        public CustomTimerTask(String _key){
+        CustomTimerTask(String _key){
             super();
             key = _key;
         }
@@ -405,7 +438,7 @@ Learned how to run asynchronous tasks from https://developer.android.com/referen
         public void run() {
             useCachedResults.put(key, false);
             exchangeRates.remove(key);
-            cancel();
+            this.cancel();
         }
     }
 }

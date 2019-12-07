@@ -13,6 +13,10 @@ public class UserCursorWrapper extends CursorWrapper {
         super(cursor);
     }
 
+    /*
+    Returns user data from the User Table at the cursor's location (row)
+    Referenced Android Programming by The Big Nerd Ranch Guide
+     */
     public User getUser(){
         String id = getString(getColumnIndex(UserSchema.UserTable.Cols.UUID));
         String username = getString(getColumnIndex(UserSchema.UserTable.Cols.USERNAME));

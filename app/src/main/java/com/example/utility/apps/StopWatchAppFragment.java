@@ -56,7 +56,7 @@ public class StopWatchAppFragment extends Fragment {
     Start/Pause stopwatch onClick event
     Referenced https://stackoverflow.com/questions/19194302/android-chronometer-resume-function to pause/resume chronometer
      */
-    View.OnClickListener startPauseWatch = new View.OnClickListener() {
+    private View.OnClickListener startPauseWatch = new View.OnClickListener() {
         public void onClick(View view){
             if(stopWatch.isCounting){
                 stopTime = chronometer.getBase() - SystemClock.elapsedRealtime();
@@ -74,7 +74,7 @@ public class StopWatchAppFragment extends Fragment {
     /*
     Reset stopwatch onClick event
      */
-    View.OnClickListener resetWatch = new View.OnClickListener() {
+    private View.OnClickListener resetWatch = new View.OnClickListener() {
         public void onClick(View view){
             stopTime = 0;
             stopWatch.reset();
@@ -82,6 +82,9 @@ public class StopWatchAppFragment extends Fragment {
         }
     };
 
+    /*
+    Toggle the UI attributes/properties of the start/stop button as the chronometer switches between start/pause states
+     */
     private void toggleStartPauseButton(boolean setStart){
         if(setStart){
             startPause.setText(getResources().getText(R.string.app_stopwatch_start_btn));

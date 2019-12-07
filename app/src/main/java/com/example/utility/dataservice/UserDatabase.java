@@ -12,6 +12,10 @@ public class UserDatabase extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, VERSION);
     }
 
+    /*
+    Creates the User Table in the utility DB and specifies the User Table columns
+    Referenced Android Programming by The Big Nerd Ranch Guide
+     */
     @Override
     public void onCreate(SQLiteDatabase db){
         db.execSQL("create table " + UserSchema.UserTable.NAME + "(" +

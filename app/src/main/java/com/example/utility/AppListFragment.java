@@ -18,14 +18,15 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.utility.dataservice.AppDataService;
+import com.example.utility.helpers.JavaUtils;
 import com.example.utility.models.AppItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /*
-https://antonioleiva.com/recyclerview-listener/
-https://stackoverflow.com/questions/24471109/recyclerview-onclick
+Learned about Recycler lists from https://antonioleiva.com/recyclerview-listener/
+    and https://stackoverflow.com/questions/24471109/recyclerview-onclick
  */
 public class AppListFragment extends Fragment {
 
@@ -60,7 +61,7 @@ public class AppListFragment extends Fragment {
             public void onClick(View v) {
                 searchBar.clearFocus();
 
-                if(!searchBar.getText().equals("")){
+                if(!JavaUtils.CheckIfEmptyString(searchBar.getText().toString())){
                     searchBar.setText(null);
                     handleAppSearch("");
                 }

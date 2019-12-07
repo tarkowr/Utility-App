@@ -22,6 +22,10 @@ public class AppDataService {
         return apps;
     }
 
+    /*
+    Ensures only one instance of this class exists during the app's lifecycle
+    Referenced Android Programming by The Big Nerd Ranch Guide
+     */
     public static AppDataService get(Context _context){
         if(appDataService == null){
             appDataService = new AppDataService(_context);
@@ -35,6 +39,9 @@ public class AppDataService {
         this.apps = ReturnAllApps();
     }
 
+    /*
+    Initialize all apps in the Utility app
+     */
     private List<AppItem> ReturnAllApps(){
         List<AppItem> appList = new ArrayList<>();
         appList.add(new AppItem(context.getResources().getString(R.string.app_currency_exchange),
@@ -52,6 +59,9 @@ public class AppDataService {
         return appList;
     }
 
+    /*
+    Return an app by its ID
+     */
     public AppItem getAppById(UUID id){
         AppItem appItem = null;
         for(AppItem app : this.apps){
@@ -63,18 +73,21 @@ public class AppDataService {
         return appItem;
     }
 
+    /*
+    Return apps with a name (or part of the name) that matches the query name
+     */
     public List<AppItem> ReturnAppsByName(String name){
         List<AppItem> appList = new ArrayList<>();
 
-        if (name.equals(null) || name.isEmpty()){
+        if (name == null || name.isEmpty()){
             return apps;
         }
 
-        Integer size = name.length();
+        int size = name.length();
 
         for(AppItem app : apps){
             String appName = app.getName();
-            Integer substringEndIndex = (size < appName.length() ? size : appName.length());
+            int substringEndIndex = (size < appName.length() ? size : appName.length());
             if(appName.substring(0, substringEndIndex).toLowerCase().equals(name.toLowerCase())){
                 appList.add(app);
             }
@@ -82,5 +95,4 @@ public class AppDataService {
 
         return appList;
     }
-
 }
