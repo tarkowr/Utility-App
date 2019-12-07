@@ -27,14 +27,16 @@ import java.util.List;
 /*
 Learned about Recycler lists from https://antonioleiva.com/recyclerview-listener/
     and https://stackoverflow.com/questions/24471109/recyclerview-onclick
+    and Android Programming by The Big Nerd Ranch
  */
 public class AppListFragment extends Fragment {
 
     private RecyclerView appList;
-    private final int NUM_COLS = 3;
     private List<AppItem> apps;
     private AppAdapter adapter;
     private AppDataService appDataService;
+
+    private final int NUM_COLS = 3; // TODO: Make this dynamic based on user's device
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -48,6 +50,7 @@ public class AppListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_app_list, container, false);
+
         appList = view.findViewById(R.id.app_recycler_list);
         appList.setLayoutManager(new GridLayoutManager(getActivity(), NUM_COLS));
 
@@ -57,6 +60,8 @@ public class AppListFragment extends Fragment {
         searchBar.addTextChangedListener(search);
 
         TextView cancel = view.findViewById(R.id.txtCancel);
+
+        // Cancel button onClick event to clear search bar and display all apps
         cancel.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 searchBar.clearFocus();
@@ -71,6 +76,10 @@ public class AppListFragment extends Fragment {
         return view;
     }
 
+    /*
+    Queries apps by name on each character entered by the user in the search bar
+    Learned how to create a new TextWatcher class from Android Programming by The Big Nerd Ranch
+     */
     private TextWatcher search = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
@@ -84,6 +93,9 @@ public class AppListFragment extends Fragment {
         public void afterTextChanged(Editable editable) { }
     };
 
+    /*
+    Queries the app data service for apps by name and adds the returned apps to the app recycler list
+     */
     private void handleAppSearch(String search){
         apps.clear();
         List<AppItem> appList = appDataService.ReturnAppsByName(search);
@@ -95,13 +107,20 @@ public class AppListFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
+    /*
+    Initializes the recycler list adapter with the app list and attaches onClick listeners to each app
+    Referenced Android Programming by The Big Nerd Ranch
+     */
     private void setupAdapter(){
-        if(isAdded()){
+        if(isAdded()){ // Ensures the fragment is added to the activity
             this.adapter = new AppAdapter(this.apps, onAppClickListener);
             appList.setAdapter(this.adapter);
         }
     }
 
+    /*
+    The onClick listener attached to each app. Launches the app activity and passes the app ID
+     */
     private OnItemClickListener onAppClickListener = new OnItemClickListener() {
         @Override
         public void onItemClick(AppItem app) {
@@ -110,17 +129,24 @@ public class AppListFragment extends Fragment {
         }
     };
 
+    /*
+    Represents each item in the app list recycler view. Handles the custom binding process
+    Learned about View Holders from Android Programming by The Big Nerd Ranch
+     */
     private class AppHolder extends RecyclerView.ViewHolder {
         private TextView appName;
         private ImageView appImage;
 
-        public AppHolder(View appContainerView){
+        private AppHolder(View appContainerView){
             super(appContainerView);
             appName = appContainerView.findViewById(R.id.app_title);
             appImage = appContainerView.findViewById(R.id.app_icon);
         }
 
-        public void bindListApp(final AppItem app, final OnItemClickListener listener) {
+        /*
+        Binds data to each app in the app recycler view and attaches an onClick listener
+         */
+        private void bindListApp(final AppItem app, final OnItemClickListener listener) {
             appName.setText(app.toString());
             appImage.setImageResource(app.getResId());
 
@@ -132,18 +158,23 @@ public class AppListFragment extends Fragment {
         }
     }
 
+    /*
+    Interface between app objects and recycler list object in the UI
+    Learned about Adapters from Android Programming by The Big Nerd Ranch
+     */
     private class AppAdapter extends RecyclerView.Adapter<AppHolder> {
 
         private List<AppItem> apps;
         private OnItemClickListener listener;
 
-        public AppAdapter(List<AppItem> _apps, OnItemClickListener _listener){
+        private AppAdapter(List<AppItem> _apps, OnItemClickListener _listener){
             this.apps = _apps;
             this.listener = _listener;
         }
 
+        @NonNull
         @Override
-        public AppHolder onCreateViewHolder(ViewGroup viewGroup, int viewType){
+        public AppHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType){
             LayoutInflater inflater = LayoutInflater.from(getActivity());
             View view = inflater.inflate(R.layout.app_list_item, viewGroup, false);
             return new AppHolder(view);
@@ -161,6 +192,9 @@ public class AppListFragment extends Fragment {
         }
     }
 
+    /*
+    Custom interface for app onClick events
+     */
     private interface OnItemClickListener {
         void onItemClick(AppItem app);
     }

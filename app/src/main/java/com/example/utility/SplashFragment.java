@@ -18,11 +18,13 @@ import com.example.utility.dataservice.UserDataService;
 import com.example.utility.helpers.JavaUtils;
 import com.example.utility.models.User;
 
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class SplashFragment extends Fragment {
 
+    private final String FRAGMENT_TAG = "SPLASH_FRAGMENT";
     private final int TIMEOUT = 10000;
     private final int START_DELAY = 200;
     private final int MAX_DELAY = 1000;
@@ -40,12 +42,18 @@ public class SplashFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_splash, container, false);
+
         progressBar = view.findViewById(R.id.progressBar);
         txtStatus = view.findViewById(R.id.txtStatus);
 
+        // Starts the database setup and user retrieval async task
         TimerTask startSetup = new TimerTask() {
             @Override
             public void run() {
+                if(getActivity() == null){
+                    return;
+                }
+
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -56,9 +64,13 @@ public class SplashFragment extends Fragment {
             }
         };
 
+        // Timeout event in case of an error during the db setup async method
         TimerTask handleTimeout = new TimerTask() {
             @Override
             public void run() {
+                if(getActivity() == null){
+                    return;
+                }
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -75,8 +87,16 @@ public class SplashFragment extends Fragment {
         return view;
     }
 
+    /*
+    Launches the Home Activity and finishes the Splash Activity
+     */
     private void launchHomeActivity(final User user){
         cancelTimer();
+
+        if(getActivity() == null){
+            return;
+        }
+
         getActivity().runOnUiThread(new Runnable() {
 
             @Override
@@ -90,19 +110,33 @@ public class SplashFragment extends Fragment {
         });
     }
 
+    /*
+    Replaces this fragment with the create account fragment
+     */
     private void launchCreateAccountFragment(){
         cancelTimer();
+
+        if(getActivity() == null){
+            return;
+        }
+
         getActivity().runOnUiThread(new Runnable() {
 
             @Override
             public void run() {
                 SplashActivity splashActivity = (SplashActivity)getActivity();
-                splashActivity.removeFragment(SplashFragment.this);
-                splashActivity.launchCreateAccountFragment();
+
+                if(splashActivity != null){
+                    splashActivity.removeFragment(SplashFragment.this);
+                    splashActivity.launchCreateAccountFragment();
+                }
             }
         });
     }
 
+    /*
+    Gets the initialized database service and retrieves the default user from the db
+     */
     private User databaseSetup(){
         updateProgressAndDelay();
 
@@ -120,25 +154,44 @@ public class SplashFragment extends Fragment {
         return user;
     }
 
+    /*
+    Update the progress in the horizontal progress bar and briefly pause the UI
+     */
     private void updateProgressAndDelay(){
         setProgressBar(incrementProgress());
         JavaUtils.pauseUI(JavaUtils.returnRandomInt(MAX_DELAY));
     }
 
+    /*
+    Set the value of the progress bar
+     */
     private void setProgressBar(int value){
         progressBar.setProgress(value);
     }
 
+    /*
+    Increment the progress bar by a constant increment
+     */
     private int incrementProgress(){
         return progressBar.getProgress() + PROGRESS_INCREMENT;
     }
 
+    /*
+    Cancel the scheduled timer task events
+     */
     private void cancelTimer(){
         this.timeout.cancel();
         this.timeout.purge();
     }
 
+    /*
+    Set the status of the app loading state in the UI
+     */
     private void setStatusText(final int stringResource){
+        if(getActivity() == null){
+            return;
+        }
+
         getActivity().runOnUiThread(new Runnable() {
 
             @Override
@@ -149,7 +202,8 @@ public class SplashFragment extends Fragment {
     }
 
     /*
-    https://developer.android.com/reference/android/os/AsyncTask
+    Connects to the local SQLite db, creates the db if needed, and returns the default user data
+    Learned about async tasks in android from https://developer.android.com/reference/android/os/AsyncTask
      */
     private class DatabaseStatus extends AsyncTask<String, String, User> {
 
@@ -158,8 +212,8 @@ public class SplashFragment extends Fragment {
             try{
                 return databaseSetup();
             }
-            catch (Exception e){
-                Log.e("UtilitySplashFragment", "DB SETUP");
+            catch (Exception ex){
+                Log.e(FRAGMENT_TAG, Objects.requireNonNull(ex.getMessage()));
                 return null;
             }
         }

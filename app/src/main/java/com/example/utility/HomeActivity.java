@@ -26,17 +26,10 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        String welcomeMsg = getResources().getString(R.string.txt_welcome);
-        Integer sbFontSize = 20;
+        welcomeUser();
 
-        User user = getUserFromIntent();
-
-        if(!user.getUsername().isEmpty()){
-            welcomeMsg = "Welcome, " + user.getUsername() + "!";
-        }
-
-        showWelcomeSnackBar(welcomeMsg, sbFontSize);
-
+        // Initializes the fragment manager and adds the app list fragment to the home frame container
+        // Referenced Android Programming by The Big Nerd Ranch
         fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.home_fragment_container);
 
@@ -48,22 +41,46 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    /*
+    Creates the intent to start this activity and defines the necessary parameters
+    Referenced Android Programming by The Big Nerd Ranch
+     */
     public static Intent newIntent(Context context, UUID userId){
         Intent intent = new Intent(context, HomeActivity.class);
         intent.putExtra(EXTRA_USER_ID, userId);
         return intent;
     }
 
+    /*
+    Retrieves the user object from the intent and welcomes the user with a snack bar message
+     */
+    private void welcomeUser(){
+        String welcomeMsg = getResources().getString(R.string.txt_welcome);
+        int sbFontSize = 20;
+
+        User user = getUserFromIntent();
+
+        if(!user.getUsername().isEmpty()){
+            welcomeMsg = "Welcome, " + user.getUsername() + "!";
+        }
+
+        showSnackBar(welcomeMsg, sbFontSize);
+    }
+
+    /*
+    Retrieves the passed user object from the intent launching this by activity by a private key
+     */
     private User getUserFromIntent(){
         UUID id = (UUID)getIntent().getSerializableExtra(HomeActivity.EXTRA_USER_ID);
         return UserDataService.get(HomeActivity.this).getUser(id);
     }
 
     /*
-    https://developer.android.com/reference/android/support/design/widget/Snackbar
-    https://stackoverflow.com/questions/33517255/changing-typeface-of-snackbar/33517490
+    Displays the welcome user snack bar (a widget from material design)
+    Learned about snack bars from https://developer.android.com/reference/android/support/design/widget/Snackbar
+        and https://stackoverflow.com/questions/33517255/changing-typeface-of-snackbar/33517490
      */
-    private void showWelcomeSnackBar(String msg, Integer fontSize){
+    private void showSnackBar(String msg, Integer fontSize){
         Snackbar sb = Snackbar.make(findViewById(R.id.homeRootContstraintLayout), msg,
                 Snackbar.LENGTH_LONG);
 

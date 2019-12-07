@@ -31,12 +31,15 @@ public class CreateUserFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_create_account, container, false);
+
         username = view.findViewById(R.id.editUsername);
         accountName = view.findViewById(R.id.txtAccountName);
 
         final UserDataService dataService = UserDataService.get(getActivity());
         final String accountText = getResources().getString(R.string.txt_account_name);
 
+        // Updates the account name txtView with the user's account name as the user types each character
+        // Learned how to create a new TextWatcher class from Android Programming by The Big Nerd Ranch
         username.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
@@ -50,6 +53,7 @@ public class CreateUserFragment extends Fragment {
             public void afterTextChanged(Editable editable) { }
         });
 
+        // Creates a create account button onClick event to create a new user account
         view.findViewById(R.id.btnCreateAccount).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 String name = username.getText().toString();
@@ -66,6 +70,7 @@ public class CreateUserFragment extends Fragment {
             }
         });
 
+        // Creates a exit button onClick event to destroy the current activity, which will exit the app
         view.findViewById(R.id.txtExit).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 SplashActivity hostActivity = (SplashActivity)getActivity();
@@ -77,11 +82,14 @@ public class CreateUserFragment extends Fragment {
         return view;
     }
 
+    /*
+    Validation method to ensure the user enters a valid username
+     */
     private Boolean isValidUsername(String str){
         String regex = ".*[a-zA-Z0-9].*";
         final int MAX_LENGTH = 40;
 
-        if(str.equals(null) || str.isEmpty()){
+        if(JavaUtils.CheckIfEmptyString(str)){
             return false;
         }
 
@@ -96,6 +104,9 @@ public class CreateUserFragment extends Fragment {
         return true;
     }
 
+    /*
+    Removes this fragment from the host activity, finishes the host, launches the home , and passes it a user object
+     */
     private void launchHomeActivity(User user){
         SplashActivity hostActivity = (SplashActivity)getActivity();
         hostActivity.removeFragment(CreateUserFragment.this);

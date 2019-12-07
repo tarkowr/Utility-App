@@ -32,6 +32,8 @@ public class AppActivity extends AppCompatActivity {
         ImageView home = findViewById(R.id.imgHome);
         home.setOnClickListener(onClickHome);
 
+        // Initializes the fragment manager and adds the passed app's fragment to this activity's frame layout
+        // Learned about Fragment Managers from Android Programming by The Big Nerd Ranch
         fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.app_fragment_container);
 
@@ -43,23 +45,36 @@ public class AppActivity extends AppCompatActivity {
         }
     }
 
+    /*
+    Creates the intent to start this activity and defines the necessary parameters
+    Referenced Android Programming by The Big Nerd Ranch
+     */
     public static Intent newIntent(Context context, UUID appId){
         Intent intent = new Intent(context, AppActivity.class);
         intent.putExtra(EXTRA_APP_ID, appId);
         return intent;
     }
 
+    /*
+    Retrieves the passed app object from the intent launching this by activity by a private key
+     */
     private AppItem getAppFromIntent(){
         UUID id = (UUID)getIntent().getSerializableExtra(EXTRA_APP_ID);
         return AppDataService.get(AppActivity.this).getAppById(id);
     }
 
+    /*
+    Override the back button onPress event to finish the activity instead of removing the fragment
+     */
     @Override
     public void onBackPressed() {
         finish();
     }
 
-    View.OnClickListener onClickHome = new View.OnClickListener() {
+    /*
+    Event to destroy this activity and end its lifecycle
+     */
+    private View.OnClickListener onClickHome = new View.OnClickListener() {
         public void onClick(View view){
             finish();
         }

@@ -17,6 +17,10 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
         setupFragmentManager(R.id.fragment_container);
     }
 
+    /*
+    Initialize the fragment manager and add the initial fragment to the child class activity
+    Referenced Android Programming by The Big Nerd Ranch Guide
+     */
     protected void setupFragmentManager(int fragmentContainerId){
         fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(fragmentContainerId);
@@ -29,6 +33,9 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
         }
     }
 
+    /*
+    Remove a fragment from the child class activity
+     */
     protected void removeFragment(Fragment fragment){
         if(fm == null){
             fm = getSupportFragmentManager();
@@ -40,7 +47,8 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
     }
 
     /*
-    https://stackoverflow.com/questions/5658675/replacing-a-fragment-with-another-fragment-inside-activity-group
+    Replaces the fragment in the child activity class with another fragment
+    Referenced https://stackoverflow.com/questions/5658675/replacing-a-fragment-with-another-fragment-inside-activity-group to replace the fragment
      */
     protected void changeFragment(Fragment newFragment){
         if(fm == null){

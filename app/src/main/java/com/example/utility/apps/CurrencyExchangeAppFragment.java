@@ -94,6 +94,11 @@ public class CurrencyExchangeAppFragment extends Fragment {
             final double LOWER_LIMIT = 0.0;
             final double UPPER_LIMIT = 1000000000.0;
 
+            if(availableCurrencies == null || availableCurrencies.length == 0){
+                DisplayApiError();
+                return;
+            }
+
             currencyTop = topCurrencySpinner.getSelectedItem().toString();
             currencyBottom = bottomCurrencySpinner.getSelectedItem().toString();
 
@@ -217,13 +222,17 @@ public class CurrencyExchangeAppFragment extends Fragment {
                 index++;
             }
 
-            currencies[index] = baseCurr;
-            useCachedResults.put(baseCurr, false);
-
-            Arrays.sort(currencies);
+            if(!useCachedResults.containsKey(baseCurr)){
+                currencies[index] = baseCurr;
+                useCachedResults.put(baseCurr, false);
+            }
         }
         catch (Exception ex){
             Log.d(APP_TAG, Objects.requireNonNull(ex.getMessage()));
+        }
+
+        if(currencies.length > 1){
+            Arrays.sort(currencies);
         }
 
         return currencies;
@@ -385,7 +394,7 @@ public class CurrencyExchangeAppFragment extends Fragment {
         protected ExchangeRate doInBackground(String... args) {
             String baseCurr = currencyTop;
 
-            if(!useCachedResults.get(baseCurr) || exchangeRates.isEmpty()){
+            if(!useCachedResults.get(baseCurr) || !exchangeRates.containsKey(baseCurr)){
                 String url = getRateUrl(currencyTop);
                 StringBuffer json = getExchangeRate(url);
 
