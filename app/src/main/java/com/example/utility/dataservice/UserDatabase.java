@@ -14,7 +14,7 @@ public class UserDatabase extends SQLiteOpenHelper {
 
     /*
     Creates the User Table in the utility DB and specifies the User Table columns
-    Referenced Android Programming by The Big Nerd Ranch Guide
+    Learned how to programmatically create a SQLite db from Android Programming by The Big Nerd Ranch Guide
      */
     @Override
     public void onCreate(SQLiteDatabase db){
@@ -26,7 +26,5 @@ public class UserDatabase extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
-
-    }
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){ return;}
 }

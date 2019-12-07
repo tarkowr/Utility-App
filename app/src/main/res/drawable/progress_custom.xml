@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<!--https://stackoverflow.com/questions/5745814/how-to-change-progressbars-progress-indicator-color-in-android-->
+<!--Learned how to style a horizontal progress bar from https://stackoverflow.com/questions/5745814/how-to-change-progressbars-progress-indicator-color-in-android-->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@android:id/background">
         <shape>

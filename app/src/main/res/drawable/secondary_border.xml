@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--Learned how to create a background border from https://stackoverflow.com/questions/3496269/how-do-i-put-a-border-around-an-android-textview-->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <stroke

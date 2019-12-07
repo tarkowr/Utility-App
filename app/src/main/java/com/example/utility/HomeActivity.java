@@ -1,3 +1,12 @@
+/*
+Richie Tarkowski
+December 9, 2019
+Professor Hira Herrington
+ISYS 221 001
+Utility is a multi-purpose Android app that features three programs: Coin Flip, Currency Exchange, and Stopwatch
+This class is the host activity for the app list fragment
+*/
+
 package com.example.utility;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,7 +38,7 @@ public class HomeActivity extends AppCompatActivity {
         welcomeUser();
 
         // Initializes the fragment manager and adds the app list fragment to the home frame container
-        // Referenced Android Programming by The Big Nerd Ranch
+        // Learned about fragment managers from Android Programming by The Big Nerd Ranch
         fm = getSupportFragmentManager();
         Fragment fragment = fm.findFragmentById(R.id.home_fragment_container);
 
@@ -43,7 +52,7 @@ public class HomeActivity extends AppCompatActivity {
 
     /*
     Creates the intent to start this activity and defines the necessary parameters
-    Referenced Android Programming by The Big Nerd Ranch
+    Learned about android intents from Android Programming by The Big Nerd Ranch
      */
     public static Intent newIntent(Context context, UUID userId){
         Intent intent = new Intent(context, HomeActivity.class);

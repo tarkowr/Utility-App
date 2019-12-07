@@ -54,7 +54,7 @@ public class StopWatchAppFragment extends Fragment {
 
     /*
     Start/Pause stopwatch onClick event
-    Referenced https://stackoverflow.com/questions/19194302/android-chronometer-resume-function to pause/resume chronometer
+    Learned how to pause/resume a chronometer from https://stackoverflow.com/questions/19194302/android-chronometer-resume-function
      */
     private View.OnClickListener startPauseWatch = new View.OnClickListener() {
         public void onClick(View view){

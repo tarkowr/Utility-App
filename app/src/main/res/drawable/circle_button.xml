@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--Referenced https://stackoverflow.com/questions/9884202/custom-circle-button to create drawable circle-->
+<!--Learned how to create a drawable circle from https://stackoverflow.com/questions/9884202/custom-circle-button-->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="oval">

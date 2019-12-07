@@ -40,8 +40,7 @@ public class StopWatch {
 
     /*
     Reset chronometer to zero
-    Source explaining how to reset chronometer to zero:
-    https://stackoverflow.com/questions/31520859/chronometer-i-want-to-make-a-button-reset-to-00-00-not-restart-the-chronomete
+    Learned how to reset a chronometer to zero from https://stackoverflow.com/questions/31520859/chronometer-i-want-to-make-a-button-reset-to-00-00-not-restart-the-chronomete
      */
     public void reset()
     {

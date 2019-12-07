@@ -1,3 +1,12 @@
+/*
+Richie Tarkowski
+December 9, 2019
+Professor Hira Herrington
+ISYS 221 001
+Utility is a multi-purpose Android app that features three programs: Coin Flip, Currency Exchange, and Stopwatch
+This class is the fragment containing the recycler list with all of the Utility apps and app search bar
+*/
+
 package com.example.utility;
 
 import android.content.Intent;
@@ -109,7 +118,7 @@ public class AppListFragment extends Fragment {
 
     /*
     Initializes the recycler list adapter with the app list and attaches onClick listeners to each app
-    Referenced Android Programming by The Big Nerd Ranch
+    Learned about android adapters from Android Programming by The Big Nerd Ranch
      */
     private void setupAdapter(){
         if(isAdded()){ // Ensures the fragment is added to the activity

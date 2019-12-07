@@ -34,7 +34,7 @@ public class UserDataService {
 
     /*
     Inserts a user into the User Table
-    Referenced Android Programming by The Big Nerd Ranch Guide
+    Learned how to insert a row into a SQLite db from Android Programming by The Big Nerd Ranch Guide
      */
     public void addUser(User user){
         ContentValues cv = getContentValues(user);
@@ -43,7 +43,7 @@ public class UserDataService {
 
     /*
     Updates a user's information in the User Table
-    Referenced Android Programming by The Big Nerd Ranch Guide
+    Learned how to update a row in a SQLite db from Android Programming by The Big Nerd Ranch Guide
      */
     public void updateUser(User user){
         ContentValues cv = getContentValues(user);
@@ -76,7 +76,7 @@ public class UserDataService {
 
     /*
     Returns a user from the User Table by ID
-    Referenced Android Programming by The Big Nerd Ranch Guide
+    Learned how to use the cursor returned from a query to return a row from Android Programming by The Big Nerd Ranch Guide
      */
     public User getUser(UUID id){
         UserCursorWrapper cursor = queryUser(
@@ -99,7 +99,7 @@ public class UserDataService {
 
     /*
     Maps the user object to User Table columns
-    Referenced Android Programming by The Big Nerd Ranch Guide
+    Learned how to map an object's properties to a SQLite Table's columns with ContentValues from Android Programming by The Big Nerd Ranch Guide
      */
     private static ContentValues getContentValues(User user){
         ContentValues values = new ContentValues();
@@ -111,7 +111,7 @@ public class UserDataService {
 
     /*
     Queries the User Table for users with SQL query
-    Referenced Android Programming by The Big Nerd Ranch Guide
+    Learned how to query a Table in SQLite with SELECT, WHERE, GROUP BY, etc. clauses from Android Programming by The Big Nerd Ranch Guide
      */
     private UserCursorWrapper queryUser(String where, String[] whereArgs){
         Cursor cursor = database.query(UserSchema.UserTable.NAME,

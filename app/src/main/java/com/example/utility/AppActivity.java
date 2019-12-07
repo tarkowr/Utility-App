@@ -1,3 +1,12 @@
+/*
+Richie Tarkowski
+December 9, 2019
+Professor Hira Herrington
+ISYS 221 001
+Utility is a multi-purpose Android app that features three programs: Coin Flip, Currency Exchange, and Stopwatch
+This class is the host activity for each app fragment
+*/
+
 package com.example.utility;
 
 import android.content.Context;
@@ -47,7 +56,7 @@ public class AppActivity extends AppCompatActivity {
 
     /*
     Creates the intent to start this activity and defines the necessary parameters
-    Referenced Android Programming by The Big Nerd Ranch
+    Learned about android intents from Android Programming by The Big Nerd Ranch
      */
     public static Intent newIntent(Context context, UUID appId){
         Intent intent = new Intent(context, AppActivity.class);

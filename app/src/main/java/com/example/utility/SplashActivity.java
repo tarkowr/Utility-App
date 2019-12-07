@@ -1,3 +1,12 @@
+/*
+Richie Tarkowski
+December 9, 2019
+Professor Hira Herrington
+ISYS 221 001
+Utility is a multi-purpose Android app that features three programs: Coin Flip, Currency Exchange, and Stopwatch
+This class host the splash fragment and the create user fragment
+*/
+
 package com.example.utility;
 
 import androidx.fragment.app.Fragment;

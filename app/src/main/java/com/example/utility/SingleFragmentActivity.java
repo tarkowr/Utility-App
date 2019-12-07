@@ -1,3 +1,12 @@
+/*
+Richie Tarkowski
+December 9, 2019
+Professor Hira Herrington
+ISYS 221 001
+Utility is a multi-purpose Android app that features three programs: Coin Flip, Currency Exchange, and Stopwatch
+This abstract class is inherited by activities that host a single fragment
+*/
+
 package com.example.utility;
 
 import android.os.Bundle;
@@ -19,7 +28,7 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
 
     /*
     Initialize the fragment manager and add the initial fragment to the child class activity
-    Referenced Android Programming by The Big Nerd Ranch Guide
+    Learned about fragment managers from Android Programming by The Big Nerd Ranch Guide
      */
     protected void setupFragmentManager(int fragmentContainerId){
         fm = getSupportFragmentManager();
@@ -48,7 +57,7 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
 
     /*
     Replaces the fragment in the child activity class with another fragment
-    Referenced https://stackoverflow.com/questions/5658675/replacing-a-fragment-with-another-fragment-inside-activity-group to replace the fragment
+    Learned about replacing fragments from https://stackoverflow.com/questions/5658675/replacing-a-fragment-with-another-fragment-inside-activity-group
      */
     protected void changeFragment(Fragment newFragment){
         if(fm == null){

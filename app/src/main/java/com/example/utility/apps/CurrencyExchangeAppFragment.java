@@ -258,7 +258,7 @@ public class CurrencyExchangeAppFragment extends Fragment {
 
     /*
     Using Jackson https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core to parse the json String into a Java Object
-    Referenced https://www.codexpedia.com/java/jackson-parser-example-in-android/ to learn how to convert json to an object
+    Learned how to convert json to an object from https://www.codexpedia.com/java/jackson-parser-example-in-android/
      */
     private ExchangeRate parseResults(String json){
         ObjectMapper mapper = new ObjectMapper();
