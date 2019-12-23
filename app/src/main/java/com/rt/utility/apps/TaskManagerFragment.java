@@ -38,7 +38,6 @@ public class TaskManagerFragment extends Fragment {
         setRetainInstance(true);
         tasks = new ArrayList<>();
 
-        Log.d("Task Manager", "Getting data service");
         taskDataService = TaskDataService.get(getActivity());
     }
 
@@ -46,8 +45,6 @@ public class TaskManagerFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_task_manager_app, container, false);
 
         tasks = getAllTasks();
-
-        Log.d("Task Manager", "" + tasks.size());
 
         Button addBtn = view.findViewById(R.id.btn_add_task);
         addBtn.setOnClickListener(addTask);
