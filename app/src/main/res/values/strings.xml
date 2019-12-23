@@ -45,4 +45,8 @@
 
     <!--Task Manager App-->
     <string name="app_task_manager">Task Manager</string>
+    <string name="app_task_manager_task_details">Task Details</string>
+    <string name="app_task_manager_add_task_hint">Add a New Task...</string>
+    <string name="app_task_manager_delete_checked">Delete Checked</string>
+    <string name="app_task_manager_completed">Completed</string>
 </resources>
