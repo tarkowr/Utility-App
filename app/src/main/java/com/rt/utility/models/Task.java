@@ -9,6 +9,13 @@ public class Task {
     private Boolean completed;
     private Date entered;
 
+    public Task(UUID _id, String _title, Date _entered, Boolean _completed){
+        this.id = _id;
+        this.name = _title;
+        this.entered = _entered;
+        this.completed = _completed;
+    }
+
     public Task(String _name){
         this.id = UUID.randomUUID();
         this.name = _name;

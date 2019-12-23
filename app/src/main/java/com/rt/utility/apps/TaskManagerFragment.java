@@ -1,6 +1,7 @@
 package com.rt.utility.apps;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rt.utility.R;
+import com.rt.utility.dataservice.TaskDataService;
+import com.rt.utility.helpers.JavaUtils;
 import com.rt.utility.models.Task;
 
 import java.util.ArrayList;
@@ -27,16 +30,24 @@ public class TaskManagerFragment extends Fragment {
     private List<Task> tasks;
     private TaskAdapter adapter;
     private RecyclerView taskList;
+    private TaskDataService taskDataService;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         tasks = new ArrayList<>();
+
+        Log.d("Task Manager", "Getting data service");
+        taskDataService = TaskDataService.get(getActivity());
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_task_manager_app, container, false);
+
+        tasks = getAllTasks();
+
+        Log.d("Task Manager", "" + tasks.size());
 
         Button addBtn = view.findViewById(R.id.btn_add_task);
         addBtn.setOnClickListener(addTask);
@@ -62,11 +73,14 @@ public class TaskManagerFragment extends Fragment {
             }
 
             EditText addText = view.findViewById(R.id.txt_new_task);
-            String taskTitle = addText.getText().toString();
+            String taskTitle = JavaUtils.GetWidgetText(addText);
 
-            if(!taskTitle.isEmpty() && taskTitle.trim().length() > 0){
-                tasks.add(new Task(taskTitle));
-                addText.setText("");
+            if(isValidTaskTitle(taskTitle)){
+                Task task = new Task(taskTitle);
+                tasks.add(task);
+                taskDataService.insertTask(task);
+
+                addText.setText(R.string.empty_string);
                 commitChanges();
             }
         }
@@ -80,6 +94,7 @@ public class TaskManagerFragment extends Fragment {
         @Override
         public void onItemClick(Task task) {
             task.ToggleCompleted();
+            taskDataService.updateTask(task);
             commitChanges();
         }
     };
@@ -91,9 +106,46 @@ public class TaskManagerFragment extends Fragment {
         @Override
         public void onItemClick(Task task) {
             tasks.remove(task);
+            taskDataService.deleteTask(task);
             commitChanges();
         }
     };
+
+    /*
+    Get all saved tasks in the database
+     */
+    private List<Task> getAllTasks(){
+        List<Task> _tasks = taskDataService.getAllTasks();
+
+        if(_tasks == null){
+            _tasks = new ArrayList<>();
+        }
+
+        return _tasks;
+    }
+
+    private Boolean isValidTaskTitle(String taskTitle){
+        final int MIN_LENGTH = 1;
+        final int MAX_LENGTH = 40;
+        String regex = ".*[a-zA-Z0-9].*";
+
+        if(JavaUtils.CheckIfEmptyString(taskTitle)){
+            return false;
+        }
+
+        taskTitle = taskTitle.trim();
+        int length = taskTitle.length();
+
+        if(length < MIN_LENGTH || length > MAX_LENGTH){
+            return false;
+        }
+
+        if(!taskTitle.matches(regex)){
+            return false;
+        }
+
+        return true;
+    }
 
     /*
     Update the ListView when the user adds new tasks
