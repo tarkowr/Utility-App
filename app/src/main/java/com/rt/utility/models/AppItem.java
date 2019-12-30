@@ -34,11 +34,8 @@ public class AppItem {
         this.id = UUID.randomUUID();
         this.name = _name;
         this.resId = _resId;
+        this.minSdk = _minSdk;
         this.fragment = _fragment;
-
-        if (_minSdk == null){
-            this.minSdk = 0;
-        }
     }
 
     @Override

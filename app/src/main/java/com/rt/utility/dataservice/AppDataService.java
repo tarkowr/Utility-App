@@ -50,22 +50,22 @@ public class AppDataService {
         List<AppItem> appList = new ArrayList<>();
         appList.add(new AppItem(context.getResources().getString(R.string.app_currency_exchange),
                 R.mipmap.ic_currency_exchange,
-                null,
+                0,
                 new CurrencyExchangeAppFragment()));
 
         appList.add(new AppItem(context.getResources().getString(R.string.app_stopwatch),
                 R.mipmap.ic_stopwatch,
-                null,
+                0,
                 new StopWatchAppFragment()));
 
         appList.add(new AppItem(context.getResources().getString(R.string.app_coin_flip),
                 R.mipmap.ic_flip_coin,
-                null,
+                0,
                 new CoinFlipFragment()));
 
         appList.add(new AppItem(context.getResources().getString(R.string.app_task_manager),
                 R.mipmap.ic_task_manager_icon,
-                null,
+                0,
                 new TaskManagerFragment()));
 
         appList.add(new AppItem(context.getResources().getString(R.string.app_wifi_scanner),
