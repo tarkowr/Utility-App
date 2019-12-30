@@ -50,4 +50,12 @@
     <string name="app_task_manager_add_task_hint">Add a New Task...</string>
     <string name="app_task_manager_delete_checked">Delete Checked</string>
     <string name="app_task_manager_completed">Completed</string>
+
+    <!--Wifi Scanner App-->
+    <string name="app_wifi_scanner">Wifi Scanner</string>
+    <string name="app_wifi_scanner_scan">Scan</string>
+    <string name="app_wifi_scanner_networks_found"> Networks Found</string>
+    <string name="app_wifi_scanner_wifi_disabled">WiFi is Disabled</string>
+    <string name="app_wifi_scanner_scanning">Scanning...</string>
+    <string name="app_wifi_scanner_error">Error Getting Network Data</string>
 </resources>
