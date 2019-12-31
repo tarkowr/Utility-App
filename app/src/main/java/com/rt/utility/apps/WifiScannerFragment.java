@@ -18,46 +18,53 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rt.utility.R;
+import com.rt.utility.models.Wifi;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/*
+Followed this tutorial to build the wifi scanner: https://medium.com/@ssaurel/develop-a-wifi-scanner-android-application-daa3b77feb73
+ */
 @TargetApi(23)
 public class WifiScannerFragment extends Fragment {
 
+    private RecyclerView wifiRecyclerView;
     private WifiAdapter adapter;
     private Button scanBtn;
     private TextView statusTxt;
     private WifiManager wifiManager;
-    private List<ScanResult> wifiList;
-    private LocalBroadcastManager localBroadcastManager;
-    private Timer timer;
+    private List<Wifi> wifiList = new ArrayList<>();
+    private Timer scanningTimer;
+    private Timer delayScanTimer;
     private WifiScannerReceiver wifiReceiver;
+    private Boolean useCachedResults;
 
     private static final String APP_TAG = "WIFI_SCANNER_APP";
     private static final String SCAN_FAILURE = "SCAN FAILURE";
+    private static final int SCAN_INTERVAL = 30000;
     private static final int TIMEOUT = 10000;
-    private static final int UPDATE_STATUS = 5000;
+    private static final int UPDATE_STATUS = 3000;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        wifiList = new ArrayList<>();
-        localBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
+        useCachedResults = false;
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onStop() {
+        super.onStop();
         unRegisterBroadcastReceiver();
     }
 
@@ -66,11 +73,11 @@ public class WifiScannerFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_wifi_scanner_app, container, false);
 
-        RecyclerView wifiRecyclerView = view.findViewById(R.id.wifi_list);
-        adapter = new WifiAdapter(wifiList);
+        wifiRecyclerView = view.findViewById(R.id.wifi_list);
         scanBtn = view.findViewById(R.id.btn_scan);
         statusTxt = view.findViewById(R.id.txtStatus);
 
+        adapter = new WifiAdapter(wifiList);
         wifiRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         wifiRecyclerView.setAdapter(adapter);
         wifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
@@ -85,27 +92,128 @@ public class WifiScannerFragment extends Fragment {
     private View.OnClickListener scanClick = new View.OnClickListener(){
         @Override
         public void onClick(View view) {
+            if(useCachedResults){
+                return;
+            }
+
+            wifiList.clear();
+            adapter.notifyDataSetChanged();
+
             if (wifiManager != null && !wifiManager.isWifiEnabled()) {
                 statusTxt.setText(R.string.app_wifi_scanner_wifi_disabled);
                 return;
             }
-
-            scanBtn.setEnabled(false);
-            statusTxt.setText(R.string.app_wifi_scanner_scanning);
 
             try{
                 scan();
             }
             catch (Exception ex){
                 Log.d(APP_TAG, Objects.requireNonNull(ex.getMessage()));
-                scanFailure();
+                scanError(R.string.app_wifi_scanner_enable_location_permission);
             }
         }
     };
 
     /*
-    Broadcast Receiver event to handle incoming WiFi Scan Results
+    Start WiFi Scan and schedule timeout and status update timer tasks
      */
+    private void scan() throws Exception{
+        useCachedResults = true;
+        scanBtn.setEnabled(false);
+
+        delayScanTimer = new Timer();
+        delayScanTimer.schedule(new EnableScanTimerTask(), SCAN_INTERVAL);
+
+        statusTxt.setText(R.string.app_wifi_scanner_scanning);
+
+        wifiReceiver = new WifiScannerReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+
+        getActivity().registerReceiver(wifiReceiver, intentFilter);
+        boolean success = wifiManager.startScan();
+
+        if(!success){
+            throw new Exception(SCAN_FAILURE);
+        }
+
+        scanningTimer = new Timer();
+        scanningTimer.schedule(new ScanningTimerTask(), UPDATE_STATUS);
+        scanningTimer.schedule(new ScannerTimeoutTimerTask(), TIMEOUT);
+    }
+
+    /*
+    Handles a successful scan
+     */
+    private void scanSuccess(){
+        List<ScanResult> results = wifiManager.getScanResults();
+        final int NUM_LEVELS = 101;
+
+        for(ScanResult result : results){
+            int strength = WifiManager.calculateSignalLevel(result.level, NUM_LEVELS);
+            wifiList.add(new Wifi(result.SSID, strength, result));
+        }
+
+        Collections.sort(wifiList, new Comparator<Wifi>() {
+            @Override
+            public int compare(Wifi a, Wifi b) {
+                return Integer.compare(b.getStrength(), a.getStrength());
+            }
+        });
+
+        statusTxt.setText(getString(R.string.app_wifi_scanner_networks_found, wifiList.size()));
+        scanBtn.setEnabled(true);
+
+        adapter.notifyDataSetChanged();
+        unRegisterBroadcastReceiver();
+    }
+
+    /*
+    Handles a failed scan
+     */
+    private void scanError(int strId){
+        statusTxt.setText(strId);
+        unRegisterBroadcastReceiver();
+        cancelDelayTimer();
+        scanBtn.setEnabled(true);
+    }
+
+    /*
+    Cancels all scheduled timer events
+     */
+    private void cancelTimer(){
+        try{
+            this.scanningTimer.cancel();
+            this.scanningTimer.purge();
+        }
+        catch (Exception e){
+            // Do nothing
+        }
+    }
+
+    /*
+    Cancels the delay timer event
+     */
+    private void cancelDelayTimer(){
+        this.delayScanTimer.cancel();
+        this.delayScanTimer.purge();
+    }
+
+    /*
+    Unregisters the WiFi Scan Broadcast Receiver
+     */
+    private void unRegisterBroadcastReceiver(){
+        try{
+            getActivity().unregisterReceiver(wifiReceiver);
+        }
+        catch (Exception e){
+            Log.d(APP_TAG, Objects.requireNonNull(e.getMessage()));
+        }
+    }
+
+    /*
+     Broadcast Receiver event to handle incoming WiFi Scan Results
+      */
     public class WifiScannerReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -116,76 +224,9 @@ public class WifiScannerFragment extends Fragment {
                 if (success) {
                     scanSuccess();
                 } else {
-                    scanFailure();
+                    scanError(R.string.app_wifi_scanner_error);
                 }
-
-                unRegisterBroadcastReceiver();
-                scanBtn.setEnabled(true);
             }
-        }
-    }
-
-    /*
-    Start WiFi Scan and schedule timeout and status update timer tasks
-     */
-    private void scan() throws Exception{
-        wifiReceiver = new WifiScannerReceiver();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-
-        localBroadcastManager.registerReceiver(wifiReceiver, intentFilter);
-        boolean success = wifiManager.startScan();
-
-        if(!success){
-            unRegisterBroadcastReceiver();
-            scanBtn.setEnabled(true);
-            throw new Exception(SCAN_FAILURE);
-        }
-
-        timer = new Timer();
-        timer.schedule(new ScanningTimerTask(), UPDATE_STATUS);
-        timer.schedule(new ScannerTimeoutTimerTask(), TIMEOUT);
-    }
-
-    /*
-    Handles a successful scan
-     */
-    private void scanSuccess(){
-        List<ScanResult> results = wifiManager.getScanResults();
-        statusTxt.setText(getString(R.string.app_wifi_scanner_networks_found, wifiList.size()));
-
-        wifiList.addAll(results);
-        adapter.notifyDataSetChanged();
-    }
-
-    /*
-    Handles a failed scan
-     */
-    private void scanFailure(){
-        statusTxt.setText(R.string.app_wifi_scanner_error);
-    }
-
-    /*
-    Cancels all scheduled timer events
-     */
-    private void cancelTimer(){
-        this.timer.cancel();
-        this.timer.purge();
-    }
-
-    /*
-    Unregisters the WiFi Scan Broadcast Receiver
-     */
-    private void unRegisterBroadcastReceiver(){
-        try{
-            cancelTimer();
-            localBroadcastManager.unregisterReceiver(wifiReceiver);
-        }
-        catch (IllegalArgumentException e){
-            e.printStackTrace();
-        }
-        catch (Exception e){
-            Log.d(APP_TAG, Objects.requireNonNull(e.getMessage()));
         }
     }
 
@@ -194,14 +235,17 @@ public class WifiScannerFragment extends Fragment {
      */
     private class WifiHolder extends RecyclerView.ViewHolder{
         private TextView name;
+        private TextView strength;
 
         private WifiHolder(View taskContainerView) {
             super(taskContainerView);
             name = taskContainerView.findViewById(R.id.wifi_name);
+            strength = taskContainerView.findViewById(R.id.wifi_strength);
         }
 
-        private void bindListWifi(ScanResult scanResult){
-            name.setText(scanResult.BSSID);
+        private void bindListWifi(Wifi wifi){
+            name.setText(wifi.getName());
+            strength.setText(Integer.toString(wifi.getStrength()));
         }
     }
 
@@ -209,9 +253,9 @@ public class WifiScannerFragment extends Fragment {
     Adapter to connect the WiFi RecyclerView with the ScanResults and inflate the list item views
      */
     private class WifiAdapter extends RecyclerView.Adapter<WifiHolder>{
-        private List<ScanResult> scans;
+        private List<Wifi> scans;
 
-        private WifiAdapter(List<ScanResult> _scans){
+        private WifiAdapter(List<Wifi> _scans){
             scans = _scans;
         }
 
@@ -225,8 +269,8 @@ public class WifiScannerFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull WifiHolder holder, int position) {
-            ScanResult scanResult = scans.get(position);
-            holder.bindListWifi(scanResult);
+            Wifi wifi = scans.get(position);
+            holder.bindListWifi(wifi);
         }
 
         @Override
@@ -269,9 +313,28 @@ public class WifiScannerFragment extends Fragment {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    scanFailure();
-                    unRegisterBroadcastReceiver();
-                    scanBtn.setEnabled(true);
+                    scanError(R.string.app_wifi_scanner_error);
+                }
+            });
+
+            this.cancel();
+        }
+    }
+
+    /*
+    Toggle cached results events
+     */
+    private class EnableScanTimerTask extends TimerTask {
+        @Override
+        public void run() {
+            if (getActivity() == null) {
+                return;
+            }
+
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    useCachedResults = false;
                 }
             });
 

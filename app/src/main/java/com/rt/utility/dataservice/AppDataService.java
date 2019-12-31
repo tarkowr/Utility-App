@@ -2,7 +2,6 @@ package com.rt.utility.dataservice;
 
 import android.content.Context;
 import android.os.Build;
-import android.util.Log;
 
 import com.rt.utility.R;
 import com.rt.utility.apps.CoinFlipFragment;
