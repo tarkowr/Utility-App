@@ -1,7 +1,6 @@
 package com.rt.utility.apps;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -169,7 +168,7 @@ public class TaskManagerFragment extends Fragment {
         /*
         Binds data to each task in the task recycler view and attaches the onClick listeners
          */
-        private void bindListApp(final Task task, final OnItemClickListener checkListener, final OnItemClickListener deleteListener) {
+        private void bindListTask(final Task task, final OnItemClickListener checkListener, final OnItemClickListener deleteListener) {
             txtTitle.setText(task.toString());
 
             checkBoxCompleted.setChecked(task.IsCompleted());
@@ -214,7 +213,7 @@ public class TaskManagerFragment extends Fragment {
         @Override
         public void onBindViewHolder(TaskHolder taskHolder, int position){
             Task task = tasks.get(position);
-            taskHolder.bindListApp(task, checkListener, deleteListener);
+            taskHolder.bindListTask(task, checkListener, deleteListener);
         }
 
         @Override

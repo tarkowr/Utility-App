@@ -1,12 +1,14 @@
 package com.rt.utility.dataservice;
 
 import android.content.Context;
+import android.os.Build;
 
 import com.rt.utility.R;
 import com.rt.utility.apps.CoinFlipFragment;
 import com.rt.utility.apps.CurrencyExchangeAppFragment;
 import com.rt.utility.apps.StopWatchAppFragment;
 import com.rt.utility.apps.TaskManagerFragment;
+import com.rt.utility.apps.WifiScannerFragment;
 import com.rt.utility.models.AppItem;
 
 import java.util.ArrayList;
@@ -47,19 +49,30 @@ public class AppDataService {
         List<AppItem> appList = new ArrayList<>();
         appList.add(new AppItem(context.getResources().getString(R.string.app_currency_exchange),
                 R.mipmap.ic_currency_exchange,
+                0,
                 new CurrencyExchangeAppFragment()));
 
         appList.add(new AppItem(context.getResources().getString(R.string.app_stopwatch),
                 R.mipmap.ic_stopwatch,
+                0,
                 new StopWatchAppFragment()));
 
         appList.add(new AppItem(context.getResources().getString(R.string.app_coin_flip),
                 R.mipmap.ic_flip_coin,
+                0,
                 new CoinFlipFragment()));
 
         appList.add(new AppItem(context.getResources().getString(R.string.app_task_manager),
                 R.mipmap.ic_task_manager_icon,
+                0,
                 new TaskManagerFragment()));
+
+        appList.add(new AppItem(context.getResources().getString(R.string.app_wifi_scanner),
+                R.mipmap.ic_wifi,
+                27,
+                new WifiScannerFragment()));
+
+        appList = RemoveIncompatibleApps(appList);
 
         return appList;
     }
@@ -95,6 +108,21 @@ public class AppDataService {
             int substringEndIndex = (size < appName.length() ? size : appName.length());
             if(appName.substring(0, substringEndIndex).toLowerCase().equals(name.toLowerCase())){
                 appList.add(app);
+            }
+        }
+
+        return appList;
+    }
+
+    /*
+    Removes apps from the app list with an incompatible sdk version
+     */
+    private List<AppItem> RemoveIncompatibleApps(List<AppItem> appList){
+        int deviceVersion = Build.VERSION.SDK_INT;
+
+        for(AppItem app : appList){
+            if(app.getMinSdk() > deviceVersion){
+                appList.remove(app);
             }
         }
 
