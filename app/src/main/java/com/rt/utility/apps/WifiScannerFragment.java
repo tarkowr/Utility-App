@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.rt.utility.R;
+import com.rt.utility.helpers.JavaUtils;
 import com.rt.utility.models.Wifi;
 
 import java.util.ArrayList;
@@ -110,6 +112,10 @@ public class WifiScannerFragment extends Fragment {
             catch (Exception ex){
                 Log.d(APP_TAG, Objects.requireNonNull(ex.getMessage()));
                 scanError(R.string.app_wifi_scanner_enable_location_permission);
+
+                Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(myIntent);
+                getActivity().finish();
             }
         }
     };
@@ -151,7 +157,13 @@ public class WifiScannerFragment extends Fragment {
 
         for(ScanResult result : results){
             int strength = WifiManager.calculateSignalLevel(result.level, NUM_LEVELS);
-            wifiList.add(new Wifi(result.SSID, strength, result));
+            String name = result.SSID;
+
+            if (JavaUtils.CheckIfEmptyString(name)){
+                name = getString(R.string.app_wifi_scanner_nameless_network);
+            }
+
+            wifiList.add(new Wifi(name, strength, result));
         }
 
         Collections.sort(wifiList, new Comparator<Wifi>() {
@@ -162,6 +174,11 @@ public class WifiScannerFragment extends Fragment {
         });
 
         statusTxt.setText(getString(R.string.app_wifi_scanner_networks_found, wifiList.size()));
+
+        if (results.size() == 0){
+            statusTxt.setText(R.string.app_wifi_scanner_ensure_location_granted);
+        }
+
         scanBtn.setEnabled(true);
 
         adapter.notifyDataSetChanged();
