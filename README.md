@@ -1,5 +1,7 @@
 # Utility
-Utility is a FREE app that provides several helpful programs:
+Utility is a FREE app that provides several helpful programs.
+
+[Download](https://play.google.com/store/apps/details?id=com.rt.utility) on the Google Play Store!
 
 ### CURRENCY EXCHANGE
 * Convert values of one currency to another with LIVE exchange rates!
@@ -19,4 +21,4 @@ Utility is a FREE app that provides several helpful programs:
 
 ### WIFI SCANNER
 * Scan local wireless networks and view signal strength!
-* Only available on API level 27 or greater.
+* Only available on API level 23 or greater.
