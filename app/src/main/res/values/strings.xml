@@ -57,9 +57,11 @@
     <string name="app_wifi_scanner_networks_found">%1$d Network(s) Found</string>
     <string name="app_wifi_scanner_wifi_disabled">WiFi is Disabled</string>
     <string name="app_wifi_scanner_enable_location_permission">Please enable Location Permissions</string>
+    <string name="app_wifi_scanner_ensure_location_granted">Please ensure Location Permission is enabled</string>
     <string name="app_wifi_scanner_scanning">Scanning&#8230;</string>
     <string name="app_wifi_scanner_error">Error Getting Network Data</string>
     <string name="app_wifi_scanner_still_scanning">Still Scanning&#8230;</string>
     <string name="app_wifi_scanner_network_name">Network Name</string>
     <string name="app_wifi_scanner_network_strength">Signal Strength</string>
+    <string name="app_wifi_scanner_nameless_network">Nameless Network</string>
 </resources>

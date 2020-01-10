@@ -69,7 +69,7 @@ public class AppDataService {
 
         appList.add(new AppItem(context.getResources().getString(R.string.app_wifi_scanner),
                 R.mipmap.ic_wifi,
-                27,
+                23,
                 new WifiScannerFragment()));
 
         appList = RemoveIncompatibleApps(appList);
