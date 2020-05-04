@@ -23,7 +23,7 @@ Utility is a FREE app that provides several helpful programs.
 * Scan local wireless networks and view signal strength!
 * Only available on API level 23 or greater.
 
-## What I Learned
+# What I Learned
 * Android MVC Design Pattern
 * Fragments, Fragment Manager
 * Activity and Fragment Lifecycle Methods
