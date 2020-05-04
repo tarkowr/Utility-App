@@ -24,6 +24,7 @@ import com.rt.utility.models.ExchangeRate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -138,7 +139,7 @@ public class CurrencyExchangeAppFragment extends Fragment {
                 progressBar.setVisibility(View.VISIBLE);
             }
 
-            new GetExchangeRateAsync().execute();
+            new GetExchangeRateAsync(CurrencyExchangeAppFragment.this).execute();
         }
     };
 
@@ -152,7 +153,7 @@ public class CurrencyExchangeAppFragment extends Fragment {
         quoteBtn.setEnabled(false);
         progressBar.setVisibility(View.VISIBLE);
 
-        new GetCurrenciesAsync().execute();
+        new GetCurrenciesAsync(CurrencyExchangeAppFragment.this).execute();
     }
 
     /*
@@ -355,18 +356,28 @@ public class CurrencyExchangeAppFragment extends Fragment {
     /*
     Learned how to run asynchronous tasks from https://developer.android.com/reference/android/os/AsyncTask
      */
-    private class GetCurrenciesAsync extends AsyncTask<String, String, String[]> {
+    private static class GetCurrenciesAsync extends AsyncTask<String, String, String[]> {
+
+        private WeakReference<CurrencyExchangeAppFragment> ref;
+
+        GetCurrenciesAsync(CurrencyExchangeAppFragment context){
+            ref = new WeakReference<>(context);
+        }
 
         @Override
         protected String[] doInBackground(String... args) {
-            String url = getCurrencyUrl();
-            StringBuffer json = getExchangeRate(url);
+            CurrencyExchangeAppFragment activity = ref.get();
+
+            if (activity == null) return null;
+
+            String url = activity.getCurrencyUrl();
+            StringBuffer json = activity.getExchangeRate(url);
 
             if(json != null){
-                ExchangeRate temp = parseResults(json.toString());
-                availableCurrencies = extractCurrencies(temp);
+                ExchangeRate temp = activity.parseResults(json.toString());
+                activity.availableCurrencies = activity.extractCurrencies(temp);
 
-                return availableCurrencies;
+                return activity.availableCurrencies;
             }
 
             return null;
@@ -377,11 +388,15 @@ public class CurrencyExchangeAppFragment extends Fragment {
 
         @Override
         protected void onPostExecute(String[] currencies) {
+            CurrencyExchangeAppFragment activity = ref.get();
+
+            if (activity == null) return;
+
             if(currencies != null){
-                DisplayCurrencyOptions();
+                activity.DisplayCurrencyOptions();
             }
             else{
-                DisplayApiError();
+                activity.DisplayApiError();
             }
         }
     }
@@ -389,32 +404,43 @@ public class CurrencyExchangeAppFragment extends Fragment {
     /*
     Learned how to run asynchronous tasks from https://developer.android.com/reference/android/os/AsyncTask
      */
-    private class GetExchangeRateAsync extends AsyncTask<String, String, ExchangeRate> {
+    private static class GetExchangeRateAsync extends AsyncTask<String, String, ExchangeRate> {
+
+        private WeakReference<CurrencyExchangeAppFragment> ref;
+
+        GetExchangeRateAsync(CurrencyExchangeAppFragment context){
+            ref = new WeakReference<>(context);
+        }
+
         @Override
         protected ExchangeRate doInBackground(String... args) {
-            String baseCurr = currencyTop;
+            CurrencyExchangeAppFragment activity = ref.get();
 
-            if(!useCachedResults.get(baseCurr) || !exchangeRates.containsKey(baseCurr)){
-                String url = getRateUrl(currencyTop);
-                StringBuffer json = getExchangeRate(url);
+            if (activity == null) return null;
+
+            String baseCurr = activity.currencyTop;
+
+            if(!activity.useCachedResults.get(baseCurr) || !activity.exchangeRates.containsKey(baseCurr)){
+                String url = activity.getRateUrl(activity.currencyTop);
+                StringBuffer json = activity.getExchangeRate(url);
 
                 if(json != null){
-                    exchangeRate = parseResults(json.toString());
+                    activity.exchangeRate = activity.parseResults(json.toString());
 
-                    exchangeRates.put(baseCurr, exchangeRate);
-                    useCachedResults.put(baseCurr, true);
+                    activity.exchangeRates.put(baseCurr, activity.exchangeRate);
+                    activity.useCachedResults.put(baseCurr, true);
 
-                    timer.schedule(new CustomTimerTask(baseCurr), REFRESH_DELAY);
+                    activity.timer.schedule(new CustomTimerTask(baseCurr, activity), activity.REFRESH_DELAY);
                 }
                 else{
                     return null;
                 }
             }
             else{
-                exchangeRate = exchangeRates.get(baseCurr);
+                activity.exchangeRate = activity.exchangeRates.get(baseCurr);
             }
 
-            return exchangeRate;
+            return activity.exchangeRate;
         }
 
         @Override
@@ -422,11 +448,15 @@ public class CurrencyExchangeAppFragment extends Fragment {
 
         @Override
         protected void onPostExecute(ExchangeRate _exchangeRate) {
+            CurrencyExchangeAppFragment activity = ref.get();
+
+            if (activity == null) return;
+
             if(_exchangeRate != null){
-                DisplayResults();
+                activity.DisplayResults();
             }
             else{
-                DisplayApiError();
+                activity.DisplayApiError();
             }
         }
     }
@@ -434,19 +464,25 @@ public class CurrencyExchangeAppFragment extends Fragment {
     /*
     Class that extends TimerTask to add additional functionality
      */
-    private class CustomTimerTask extends TimerTask {
+    private static class CustomTimerTask extends TimerTask {
 
+        private WeakReference<CurrencyExchangeAppFragment> ref;
         private String key;
 
-        CustomTimerTask(String _key){
+        CustomTimerTask(String _key, CurrencyExchangeAppFragment context){
             super();
             key = _key;
+            ref = new WeakReference<>(context);
         }
 
         @Override
         public void run() {
-            useCachedResults.put(key, false);
-            exchangeRates.remove(key);
+            CurrencyExchangeAppFragment activity = ref.get();
+
+            if (activity == null) return;
+
+            activity.useCachedResults.put(key, false);
+            activity.exchangeRates.remove(key);
             this.cancel();
         }
     }

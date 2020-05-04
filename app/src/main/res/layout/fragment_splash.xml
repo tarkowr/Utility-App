@@ -57,7 +57,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayoutTitle">
 
-        <ProgressBar
+        <!--<ProgressBar
             android:id="@+id/progressBar"
             style="@android:style/Widget.ProgressBar.Horizontal"
             android:layout_width="match_parent"
@@ -73,12 +73,22 @@
             android:progressTint="@android:color/white"
             app:layout_constraintBottom_toTopOf="@+id/txtStatus"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent" />-->
+
+        <ProgressBar
+            android:id="@id/progressBar"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="0dp"
+            android:indeterminateTint="@color/colorWhite"
+            android:visibility="visible" />
 
         <TextView
             android:id="@+id/txtStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20sp"
             android:gravity="center_horizontal"
             android:textColor="@android:color/white"
             android:textSize="18sp"

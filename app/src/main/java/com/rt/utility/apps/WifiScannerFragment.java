@@ -82,7 +82,7 @@ public class WifiScannerFragment extends Fragment {
         adapter = new WifiAdapter(wifiList);
         wifiRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         wifiRecyclerView.setAdapter(adapter);
-        wifiManager = (WifiManager) getActivity().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiManager = (WifiManager) Objects.requireNonNull(getActivity()).getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         scanBtn.setOnClickListener(scanClick);
 
         return view;
@@ -115,7 +115,7 @@ public class WifiScannerFragment extends Fragment {
 
                 Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(myIntent);
-                getActivity().finish();
+                Objects.requireNonNull(getActivity()).finish();
             }
         }
     };
@@ -136,7 +136,7 @@ public class WifiScannerFragment extends Fragment {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
 
-        getActivity().registerReceiver(wifiReceiver, intentFilter);
+        Objects.requireNonNull(getActivity()).registerReceiver(wifiReceiver, intentFilter);
         boolean success = wifiManager.startScan();
 
         if(!success){
@@ -159,11 +159,10 @@ public class WifiScannerFragment extends Fragment {
             int strength = WifiManager.calculateSignalLevel(result.level, NUM_LEVELS);
             String name = result.SSID;
 
-            if (JavaUtils.CheckIfEmptyString(name)){
-                name = getString(R.string.app_wifi_scanner_nameless_network);
+            if (!JavaUtils.CheckIfEmptyString(name)){
+                // name = getString(R.string.app_wifi_scanner_nameless_network);
+                wifiList.add(new Wifi(name, strength, result));
             }
-
-            wifiList.add(new Wifi(name, strength, result));
         }
 
         Collections.sort(wifiList, new Comparator<Wifi>() {
@@ -221,7 +220,7 @@ public class WifiScannerFragment extends Fragment {
      */
     private void unRegisterBroadcastReceiver(){
         try{
-            getActivity().unregisterReceiver(wifiReceiver);
+            Objects.requireNonNull(getActivity()).unregisterReceiver(wifiReceiver);
         }
         catch (Exception e){
             Log.d(APP_TAG, Objects.requireNonNull(e.getMessage()));

@@ -18,6 +18,7 @@ import com.rt.utility.dataservice.UserDataService;
 import com.rt.utility.helpers.JavaUtils;
 import com.rt.utility.models.User;
 
+import java.lang.ref.WeakReference;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -28,7 +29,6 @@ public class SplashFragment extends Fragment {
     private final int TIMEOUT = 10000;
     private final int START_DELAY = 200;
     private final int MAX_DELAY = 1000;
-    private final int PROGRESS_INCREMENT = 25;
 
     private ProgressBar progressBar;
     private Timer timeout;
@@ -44,6 +44,7 @@ public class SplashFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_splash, container, false);
 
         progressBar = view.findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
         txtStatus = view.findViewById(R.id.txtStatus);
 
         // Starts the database setup and user retrieval async task
@@ -58,7 +59,7 @@ public class SplashFragment extends Fragment {
                     @Override
                     public void run() {
                         setStatusText(R.string.status_db);
-                        new DatabaseStatus().execute();
+                        new DatabaseStatus(SplashFragment.this).execute();
                     }
                 });
             }
@@ -138,18 +139,20 @@ public class SplashFragment extends Fragment {
     Gets the initialized database service and retrieves the default user from the db
      */
     private User databaseSetup(){
-        updateProgressAndDelay();
+        String[] captions = new String[] {
+                "Convert currencies with live rates!",
+                "Flip a virtual coin in Coin Flip!",
+                "Make your To-Do list in Task Manager!",
+                "Scan local wireless networks!"
+        };
+
+        setStatusText(captions[(int)(Math.floor(Math.random() * captions.length))]);
 
         UserDataService dataService = UserDataService.get(getActivity());
-        updateProgressAndDelay();
-
-        setStatusText(R.string.status_user);
         User user = dataService.getDefaultUser();
-        updateProgressAndDelay();
 
         cancelTimer();
-        setStatusText(R.string.status_complete);
-        updateProgressAndDelay();
+        delay();
 
         return user;
     }
@@ -157,23 +160,8 @@ public class SplashFragment extends Fragment {
     /*
     Update the progress in the horizontal progress bar and briefly pause the UI
      */
-    private void updateProgressAndDelay(){
-        setProgressBar(incrementProgress());
-        JavaUtils.pauseUI(JavaUtils.returnRandomInt(MAX_DELAY));
-    }
-
-    /*
-    Set the value of the progress bar
-     */
-    private void setProgressBar(int value){
-        progressBar.setProgress(value);
-    }
-
-    /*
-    Increment the progress bar by a constant increment
-     */
-    private int incrementProgress(){
-        return progressBar.getProgress() + PROGRESS_INCREMENT;
+    private void delay(){
+        JavaUtils.pauseUI(JavaUtils.returnRandomInt(MAX_DELAY) + MAX_DELAY);
     }
 
     /*
@@ -187,6 +175,20 @@ public class SplashFragment extends Fragment {
     /*
     Set the status of the app loading state in the UI
      */
+    private void setStatusText(final String stringResource){
+        if(getActivity() == null){
+            return;
+        }
+
+        getActivity().runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                txtStatus.setText(stringResource);
+            }
+        });
+    }
+
     private void setStatusText(final int stringResource){
         if(getActivity() == null){
             return;
@@ -205,15 +207,25 @@ public class SplashFragment extends Fragment {
     Connects to the local SQLite db, creates the db if needed, and returns the default user data
     Learned about async tasks in android from https://developer.android.com/reference/android/os/AsyncTask
      */
-    private class DatabaseStatus extends AsyncTask<String, String, User> {
+    private static class DatabaseStatus extends AsyncTask<String, String, User> {
+
+        private WeakReference<SplashFragment> ref;
+
+        DatabaseStatus(SplashFragment context){
+            ref = new WeakReference<>(context);
+        }
 
         @Override
         protected User doInBackground(String... args) {
+            SplashFragment activity = ref.get();
+
+            if (activity == null) return null;
+
             try{
-                return databaseSetup();
+                return activity.databaseSetup();
             }
             catch (Exception ex){
-                Log.e(FRAGMENT_TAG, Objects.requireNonNull(ex.getMessage()));
+                Log.e(activity.FRAGMENT_TAG, Objects.requireNonNull(ex.getMessage()));
                 return null;
             }
         }
@@ -223,11 +235,15 @@ public class SplashFragment extends Fragment {
 
         @Override
         protected void onPostExecute(User user) {
+            SplashFragment activity = ref.get();
+
+            if (activity == null) return;
+
             if(user == null){
-                launchCreateAccountFragment();
+                activity.launchCreateAccountFragment();
             }
             else{
-                launchHomeActivity(user);
+                activity.launchHomeActivity(user);
             }
         }
     }

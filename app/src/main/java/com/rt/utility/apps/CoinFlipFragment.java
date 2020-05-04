@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import com.rt.utility.R;
 import com.rt.utility.helpers.JavaUtils;
 
+import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.util.Random;
 
@@ -83,7 +84,7 @@ public class CoinFlipFragment extends Fragment {
             progressBar.setVisibility(View.VISIBLE);
             flipBtn.setEnabled(false);
 
-            new FlipCoinsAsync().execute();
+            new FlipCoinsAsync(CoinFlipFragment.this).execute();
         }
     };
 
@@ -144,11 +145,21 @@ public class CoinFlipFragment extends Fragment {
     Flips the specified number of coins asynchronously
     Learned about async tasks from https://developer.android.com/reference/android/os/AsyncTask
      */
-    private class FlipCoinsAsync extends AsyncTask<String, String, String> {
+    private static class FlipCoinsAsync extends AsyncTask<String, String, String> {
+
+        private WeakReference<CoinFlipFragment> ref;
+
+        FlipCoinsAsync(CoinFlipFragment context){
+            ref = new WeakReference<>(context);
+        }
 
         @Override
         protected String doInBackground(String... args) {
-            flipCoins();
+            CoinFlipFragment activity = ref.get();
+
+            if (activity == null) return null;
+
+            activity.flipCoins();
             return null;
         }
 
@@ -157,7 +168,11 @@ public class CoinFlipFragment extends Fragment {
 
         @Override
         protected void onPostExecute(String status) {
-            onFlipComplete();
+            CoinFlipFragment activity = ref.get();
+
+            if (activity == null) return;
+
+            activity.onFlipComplete();
         }
     }
 }

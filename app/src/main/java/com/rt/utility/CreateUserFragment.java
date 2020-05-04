@@ -46,7 +46,12 @@ public class CreateUserFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                accountName.setText(accountText + " " + charSequence.toString());
+                if (isValidUsername(charSequence.toString())) {
+                    accountName.setText(accountText + " " + charSequence.toString());
+                }
+                else {
+                    accountName.setText("Invalid username!");
+                }
             }
 
             @Override
@@ -86,7 +91,7 @@ public class CreateUserFragment extends Fragment {
     Validation method to ensure the user enters a valid username
      */
     private Boolean isValidUsername(String str){
-        String regex = ".*[a-zA-Z0-9].*";
+        String regex = "^[a-zA-Z0-9]{1,40}$";
         final int MAX_LENGTH = 40;
 
         if(JavaUtils.CheckIfEmptyString(str)){
