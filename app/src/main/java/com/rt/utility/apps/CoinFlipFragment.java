@@ -13,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import com.rt.utility.R;
 import com.rt.utility.helpers.JavaUtils;
@@ -26,15 +27,12 @@ public class CoinFlipFragment extends Fragment {
     private EditText editNumOfFlips;
     private TextView txtHeads;
     private TextView txtTails;
-    private TextView txtStatus;
     private Button flipBtn;
 
     private Random rand;
     private long totalHeads;
     private long totalTails;
     private long numOfFlips;
-
-    private final long MAX_FLIPS = 100000000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,7 +56,6 @@ public class CoinFlipFragment extends Fragment {
 
         txtHeads = view.findViewById(R.id.txtHeads);
         txtTails = view.findViewById(R.id.txtTails);
-        txtStatus = view.findViewById(R.id.txtStatus);
 
         flipBtn = view.findViewById(R.id.btnFlip);
         flipBtn.setOnClickListener(flip);
@@ -71,13 +68,18 @@ public class CoinFlipFragment extends Fragment {
      */
     private View.OnClickListener flip = new View.OnClickListener() {
         public void onClick(View view) {
+            final long MAX_FLIPS = 100000000;
+
             setFlipResults(null, null);
-            txtStatus.setText(null);
 
             numOfFlips = JavaUtils.LongTryParse(editNumOfFlips.getText().toString());
 
+            if (numOfFlips == 0) {
+                ShowErrorSnackbar(getString(R.string.app_coin_flip_error_min));
+                return;
+            }
             if(numOfFlips > MAX_FLIPS){
-                txtStatus.setText(R.string.app_coin_flip_error_max);
+                ShowErrorSnackbar(getString(R.string.app_coin_flip_error_max));
                 return;
             }
 
@@ -87,6 +89,15 @@ public class CoinFlipFragment extends Fragment {
             new FlipCoinsAsync(CoinFlipFragment.this).execute();
         }
     };
+
+    private void ShowErrorSnackbar(String msg) {
+        FragmentActivity activity = getActivity();
+        final int sbFontSize = 20;
+
+        if (activity != null) {
+            JavaUtils.ShowSnackbar(activity.findViewById(android.R.id.content), msg, sbFontSize);
+        }
+    }
 
     /*
     Virtually "flips a coin" with Heads/Tails represented by a boolean

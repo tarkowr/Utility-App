@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -30,7 +29,6 @@ public class SplashFragment extends Fragment {
     private final int START_DELAY = 200;
     private final int MAX_DELAY = 1000;
 
-    private ProgressBar progressBar;
     private Timer timeout;
     private TextView txtStatus;
 
@@ -43,8 +41,6 @@ public class SplashFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_splash, container, false);
 
-        progressBar = view.findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.VISIBLE);
         txtStatus = view.findViewById(R.id.txtStatus);
 
         // Starts the database setup and user retrieval async task
@@ -149,7 +145,7 @@ public class SplashFragment extends Fragment {
         setStatusText(captions[(int)(Math.floor(Math.random() * captions.length))]);
 
         UserDataService dataService = UserDataService.get(getActivity());
-        User user = dataService.getDefaultUser();
+        User user = dataService.getFirstUser();
 
         cancelTimer();
         delay();

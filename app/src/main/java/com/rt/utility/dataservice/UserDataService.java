@@ -55,7 +55,7 @@ public class UserDataService {
     /*
     Returns the first (default) user in the User Table
      */
-    public User getDefaultUser(){
+    public User getFirstUser(){
         UserCursorWrapper cursor = queryUser(null, null);
 
         try{
@@ -79,6 +79,8 @@ public class UserDataService {
     Learned how to use the cursor returned from a query to return a row from Android Programming by The Big Nerd Ranch Guide
      */
     public User getUser(UUID id){
+        if (id == null) return null;
+
         UserCursorWrapper cursor = queryUser(
                 UserSchema.UserTable.Cols.UUID + " = ?",
                 new String[] { id.toString() }

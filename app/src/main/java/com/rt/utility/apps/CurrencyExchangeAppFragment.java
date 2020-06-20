@@ -3,6 +3,7 @@ package com.rt.utility.apps;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -35,7 +36,6 @@ import java.util.TimerTask;
 
 public class CurrencyExchangeAppFragment extends Fragment {
     private ProgressBar progressBar;
-    private TextView txtStatus;
     private EditText editAmount;
     private Button quoteBtn;
     private Spinner topCurrencySpinner;
@@ -73,7 +73,6 @@ public class CurrencyExchangeAppFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_currency_exchange_app, container, false);
 
         editAmount = view.findViewById(R.id.currencyAmountNum);
-        txtStatus = view.findViewById(R.id.txtStatus);
 
         quoteBtn = view.findViewById(R.id.quoteBtn);
         quoteBtn.setOnClickListener(getQuote);
@@ -104,32 +103,31 @@ public class CurrencyExchangeAppFragment extends Fragment {
             currencyBottom = bottomCurrencySpinner.getSelectedItem().toString();
 
             String amountString = JavaUtils.GetWidgetText(editAmount);
-            txtStatus.setText(null);
 
             if(currencyTop.isEmpty() || currencyBottom.isEmpty()){
-                txtStatus.setText(R.string.app_currency_exchange_invalid_currency);
+                ShowErrorSnackbar(getString(R.string.app_currency_exchange_invalid_currency));
                 return;
             }
 
             if(currencyTop.equals(currencyBottom)){
-                txtStatus.setText(R.string.app_currency_exchange_same_currency);
+                ShowErrorSnackbar(getString(R.string.app_currency_exchange_same_currency));
                 return;
             }
 
             if(!useCachedResults.containsKey(currencyTop)){
-                txtStatus.setText(R.string.app_currency_exchange_invalid_currency);
+                ShowErrorSnackbar(getString(R.string.app_currency_exchange_invalid_currency));
                 return;
             }
 
             if(JavaUtils.CheckIfEmptyString(amountString)){
-                txtStatus.setText(R.string.app_currency_exchange_invalid_amount);
+                ShowErrorSnackbar(getString(R.string.app_currency_exchange_invalid_amount));
                 return;
             }
 
             amount = JavaUtils.DoubleTryParse(amountString);
 
             if(!JavaUtils.ValidRange(amount, LOWER_LIMIT, UPPER_LIMIT)){
-                txtStatus.setText(R.string.app_currency_exchange_invalid_amount);
+                ShowErrorSnackbar(getString(R.string.app_currency_exchange_invalid_amount));
                 return;
             }
 
@@ -142,6 +140,17 @@ public class CurrencyExchangeAppFragment extends Fragment {
             new GetExchangeRateAsync(CurrencyExchangeAppFragment.this).execute();
         }
     };
+
+    private void ShowErrorSnackbar(String msg) {
+        FragmentActivity activity = getActivity();
+
+        if (activity == null) return;
+
+        final View rootView = activity.findViewById(android.R.id.content);
+        final int sbFontSize = 20;
+
+        JavaUtils.ShowSnackbar(rootView, msg, sbFontSize);
+    }
 
     /*
     Initialize the two currency spinners and call the Async task to get currencies from API
@@ -280,15 +289,18 @@ public class CurrencyExchangeAppFragment extends Fragment {
     Populates the currency spinner widgets with the currencies returned from the API
      */
     private void DisplayCurrencyOptions(){
-        if(getActivity() == null){
+        final FragmentActivity activity = getActivity();
+
+        if(activity == null){
             return;
         }
 
-        getActivity().runOnUiThread(new Runnable() {
+        activity.runOnUiThread(new Runnable() {
 
             @Override
             public void run() {
-                ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, availableCurrencies);
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(activity,
+                        android.R.layout.simple_spinner_dropdown_item, availableCurrencies);
 
                 topCurrencySpinner.setAdapter(adapter);
                 bottomCurrencySpinner.setAdapter(adapter);
@@ -305,12 +317,13 @@ public class CurrencyExchangeAppFragment extends Fragment {
     private void DisplayResults(){
         final View view = getView();
         final DecimalFormat format = new DecimalFormat("#,###.##");
+        final FragmentActivity activity = getActivity();
 
-        if(getActivity() == null){
+        if(activity == null || view == null){
             return;
         }
 
-        getActivity().runOnUiThread(new Runnable() {
+        activity.runOnUiThread(new Runnable() {
 
             @Override
             public void run() {
@@ -338,17 +351,19 @@ public class CurrencyExchangeAppFragment extends Fragment {
     Display an error if an API called return null or timed out
      */
     private void DisplayApiError(){
-        if(getActivity() == null){
+        final FragmentActivity activity = getActivity();
+
+        if(activity == null){
             return;
         }
 
-        getActivity().runOnUiThread(new Runnable() {
+        activity.runOnUiThread(new Runnable() {
 
             @Override
             public void run() {
                 quoteBtn.setEnabled(true);
                 progressBar.setVisibility(View.INVISIBLE);
-                txtStatus.setText(R.string.app_currency_exchange_api_error);
+                ShowErrorSnackbar(getString(R.string.app_currency_exchange_api_error));
             }
         });
     }

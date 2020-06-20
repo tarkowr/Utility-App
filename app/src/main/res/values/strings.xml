@@ -5,14 +5,13 @@
     <string name="status_db">Setting up Database...</string>
     <string name="status_user">Getting User Info...</string>
     <string name="status_complete">Complete!</string>
-    <string name="create_title">Create Account</string>
-    <string name="edit_username">Username</string>
-    <string name="btn_create_account">Create Account</string>
-    <string name="txt_exit">Exit</string>
-    <string name="txt_invalid_username">Invalid Username!</string>
+    <string name="create_title">What\'s your name?</string>
+    <string name="edit_username">Name</string>
+    <string name="btn_create_account">Continue</string>
+    <string name="txt_invalid_username">Please enter a valid name!</string>
     <string name="txt_welcome">Welcome!</string>
     <string name="img_user_icon">User Icon</string>
-    <string name="txt_account_name">Account Name:</string>
+    <string name="txt_account_name">What\'s your name?</string>
     <string name="app_content_desc">App Icon</string>
     <string name="app_home_icon">Home</string>
     <string name="txt_search">Search</string>
@@ -29,9 +28,9 @@
     <!--Currency Exchange App-->
     <string name="app_currency_exchange">Currency Exchange</string>
     <string name="app_currency_exchange_invalid_amount">Invalid Amount!</string>
-    <string name="app_currency_exchange_invalid_currency">Please Select Two Currencies!</string>
-    <string name="app_currency_exchange_same_currency">The Same Currency cannot be Selected Twice!</string>
-    <string name="app_currency_exchange_api_error">Unable to Retrieve Exchange Rate Data!</string>
+    <string name="app_currency_exchange_invalid_currency">Select Two Currencies!</string>
+    <string name="app_currency_exchange_same_currency">Select Different Currencies!</string>
+    <string name="app_currency_exchange_api_error">Unable to Retrieve Data!</string>
     <string name="app_currency_exchange_my_currency">My Currency</string>
     <string name="app_currency_exchange_converted_to">Converted To</string>
     <string name="app_currency_exchange_amount_hint">Amount</string>
@@ -42,7 +41,8 @@
     <string name="app_coin_flip">Coin Flip</string>
     <string name="app_coin_flip_num_flip_hint">Number of Flips</string>
     <string name="app_coin_flip_flip">Flip</string>
-    <string name="app_coin_flip_error_max">Error: Value exceeds maximum number of flips!</string>
+    <string name="app_coin_flip_error_min">Enter a value!</string>
+    <string name="app_coin_flip_error_max">Value too large!</string>
 
     <!--Task Manager App-->
     <string name="app_task_manager">Task Manager</string>

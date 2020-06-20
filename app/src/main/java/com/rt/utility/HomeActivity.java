@@ -7,12 +7,10 @@ import androidx.fragment.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.TextView;
 
 import com.rt.utility.dataservice.UserDataService;
+import com.rt.utility.helpers.JavaUtils;
 import com.rt.utility.models.User;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.UUID;
 
@@ -64,30 +62,21 @@ public class HomeActivity extends AppCompatActivity {
             welcomeMsg = "Welcome, " + user.getUsername() + "!";
         }
 
-        showSnackBar(welcomeMsg, sbFontSize);
+        JavaUtils.ShowSnackbar(findViewById(R.id.homeRootContstraintLayout),
+                welcomeMsg, sbFontSize);
     }
 
     /*
     Retrieves the passed user object from the intent launching this by activity by a private key
      */
     private User getUserFromIntent(){
-        UUID id = (UUID)getIntent().getSerializableExtra(HomeActivity.EXTRA_USER_ID);
-        return UserDataService.get(HomeActivity.this).getUser(id);
-    }
+        final UUID id = (UUID)getIntent().getSerializableExtra(HomeActivity.EXTRA_USER_ID);
+        User user = UserDataService.get(HomeActivity.this).getUser(id);
 
-    /*
-    Displays the welcome user snack bar (a widget from material design)
-    Learned about snack bars from https://developer.android.com/reference/android/support/design/widget/Snackbar
-        and https://stackoverflow.com/questions/33517255/changing-typeface-of-snackbar/33517490
-     */
-    private void showSnackBar(String msg, Integer fontSize){
-        Snackbar sb = Snackbar.make(findViewById(R.id.homeRootContstraintLayout), msg,
-                Snackbar.LENGTH_LONG);
+        if (user == null) {
+            user = UserDataService.get(HomeActivity.this).getFirstUser();
+        }
 
-        TextView sbTextView = sb.getView().findViewById(R.id.snackbar_text);
-        sbTextView.setTextSize( fontSize );
-        sbTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-
-        sb.show();
+        return user;
     }
 }

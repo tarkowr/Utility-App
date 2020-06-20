@@ -1,9 +1,12 @@
 package com.rt.utility.helpers;
 
 import android.content.Context;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.rt.utility.R;
 
 import java.util.Random;
@@ -33,6 +36,19 @@ public class JavaUtils {
      */
     public static void ShowToast(Context context, int stringResource){
         Toast.makeText(context, stringResource, Toast.LENGTH_SHORT).show();
+    }
+
+    /*
+    Display a snackbar on the screen
+     */
+    public static void ShowSnackbar(View rootView, String msg, Integer fontSize) {
+        Snackbar sb = Snackbar.make(rootView, msg, Snackbar.LENGTH_LONG);
+
+        TextView sbTextView = sb.getView().findViewById(R.id.snackbar_text);
+        sbTextView.setTextSize( fontSize );
+        sbTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+
+        sb.show();
     }
 
     /*

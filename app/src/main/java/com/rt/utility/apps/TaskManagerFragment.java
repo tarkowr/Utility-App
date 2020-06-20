@@ -28,7 +28,6 @@ public class TaskManagerFragment extends Fragment {
 
     private List<Task> tasks;
     private TaskAdapter adapter;
-    private RecyclerView taskList;
     private TaskDataService taskDataService;
 
     @Override
@@ -48,7 +47,7 @@ public class TaskManagerFragment extends Fragment {
         Button addBtn = view.findViewById(R.id.btn_add_task);
         addBtn.setOnClickListener(addTask);
 
-        taskList = view.findViewById(R.id.task_list);
+        RecyclerView taskList = view.findViewById(R.id.task_list);
         taskList.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         adapter = new TaskAdapter(tasks, checkedTask, deleteTask);
@@ -136,11 +135,7 @@ public class TaskManagerFragment extends Fragment {
             return false;
         }
 
-        if(!taskTitle.matches(regex)){
-            return false;
-        }
-
-        return true;
+        return taskTitle.matches(regex);
     }
 
     /*
@@ -153,7 +148,7 @@ public class TaskManagerFragment extends Fragment {
     /*
     Represents each view in the task recycler view
      */
-    private class TaskHolder extends RecyclerView.ViewHolder {
+    private static class TaskHolder extends RecyclerView.ViewHolder {
         private TextView txtTitle;
         private CheckBox checkBoxCompleted;
         private ImageView imgDelete;

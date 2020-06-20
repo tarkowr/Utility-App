@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -27,7 +28,12 @@ public class AppActivity extends AppCompatActivity {
         setContentView(R.layout.activity_app);
 
         AppItem app = getAppFromIntent();
-        getSupportActionBar().setTitle(JavaUtils.FormatActionBarText(app.getName(), AppActivity.this));
+
+        ActionBar actionBar = getSupportActionBar();
+
+        if (actionBar != null) {
+            getSupportActionBar().setTitle(JavaUtils.FormatActionBarText(app.getName(), AppActivity.this));
+        }
 
         ImageView home = findViewById(R.id.imgHome);
         home.setOnClickListener(onClickHome);

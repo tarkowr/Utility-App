@@ -249,7 +249,7 @@ public class WifiScannerFragment extends Fragment {
     /*
     ViewHolder to represent each WiFi list item view in the WiFi RecyclerView
      */
-    private class WifiHolder extends RecyclerView.ViewHolder{
+    private static class WifiHolder extends RecyclerView.ViewHolder{
         private TextView name;
         private TextView strength;
 

@@ -16,7 +16,7 @@
         android:fontFamily="sans-serif-condensed-light"
         android:gravity="center_vertical"
         android:textColor="#282828"
-        android:textSize="24sp"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/task_delete"
         app:layout_constraintStart_toEndOf="@+id/task_complete"

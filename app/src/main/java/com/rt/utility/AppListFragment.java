@@ -36,8 +36,6 @@ public class AppListFragment extends Fragment {
     private AppAdapter adapter;
     private AppDataService appDataService;
 
-    private final int NUM_COLS = 3; // TODO: Make this dynamic based on user's device
-
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -49,6 +47,8 @@ public class AppListFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        final int NUM_COLS = 3;
+
         View view = inflater.inflate(R.layout.fragment_app_list, container, false);
 
         appList = view.findViewById(R.id.app_recycler_list);
@@ -100,10 +100,7 @@ public class AppListFragment extends Fragment {
         apps.clear();
         List<AppItem> appList = appDataService.ReturnAppsByName(search);
 
-        for(AppItem app : appList){
-            apps.add(app);
-        }
-
+        apps.addAll(appList);
         adapter.notifyDataSetChanged();
     }
 
@@ -133,7 +130,7 @@ public class AppListFragment extends Fragment {
     Represents each item in the app list recycler view. Handles the custom binding process
     Learned about View Holders from Android Programming by The Big Nerd Ranch
      */
-    private class AppHolder extends RecyclerView.ViewHolder {
+    private static class AppHolder extends RecyclerView.ViewHolder {
         private TextView appName;
         private ImageView appImage;
 

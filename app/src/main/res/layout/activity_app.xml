@@ -22,7 +22,7 @@
     <LinearLayout
         android:id="@+id/linear_navbar"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="55dp"
         android:background="@drawable/navbar_border"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
