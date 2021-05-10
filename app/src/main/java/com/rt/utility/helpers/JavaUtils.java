@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.rt.utility.R;
@@ -29,13 +28,6 @@ public class JavaUtils {
             Thread.sleep(delay);
         }
         catch (InterruptedException ex){ }
-    }
-
-    /*
-    Display toast on the screen
-     */
-    public static void ShowToast(Context context, int stringResource){
-        Toast.makeText(context, stringResource, Toast.LENGTH_SHORT).show();
     }
 
     /*

@@ -3,8 +3,6 @@ package com.rt.utility;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ImageView;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,11 +30,10 @@ public class AppActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
 
         if (actionBar != null) {
-            getSupportActionBar().setTitle(JavaUtils.FormatActionBarText(app.getName(), AppActivity.this));
+            actionBar.setTitle(JavaUtils.FormatActionBarText(app.getName(), AppActivity.this));
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setDisplayShowHomeEnabled(true);
         }
-
-        ImageView home = findViewById(R.id.imgHome);
-        home.setOnClickListener(onClickHome);
 
         // Initializes the fragment manager and adds the passed app's fragment to this activity's frame layout
         // Learned about Fragment Managers from Android Programming by The Big Nerd Ranch
@@ -69,6 +66,12 @@ public class AppActivity extends AppCompatActivity {
         return AppDataService.get(AppActivity.this).getAppById(id);
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
     /*
     Override the back button onPress event to finish the activity instead of removing the fragment
      */
@@ -76,13 +79,4 @@ public class AppActivity extends AppCompatActivity {
     public void onBackPressed() {
         finish();
     }
-
-    /*
-    Event to destroy this activity and end its lifecycle
-     */
-    private View.OnClickListener onClickHome = new View.OnClickListener() {
-        public void onClick(View view){
-            finish();
-        }
-    };
 }

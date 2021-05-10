@@ -7,12 +7,13 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -27,17 +28,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class CurrencyExchangeAppFragment extends Fragment {
     private ProgressBar progressBar;
     private EditText editAmount;
-    private Button quoteBtn;
     private Spinner topCurrencySpinner;
     private Spinner bottomCurrencySpinner;
 
@@ -47,14 +44,10 @@ public class CurrencyExchangeAppFragment extends Fragment {
     private double conversionRate;
     private String currencyTop; // Base Currency
     private String currencyBottom;
-    private Timer timer;
-    private Map<String, Boolean> useCachedResults;
-    private Map<String, ExchangeRate> exchangeRates;
 
     private final String APP_TAG = "CURRENCY_EXCHANGE_APP";
-    private final String API_URL_RATES = "https://api.exchangeratesapi.io/latest?base=";
-    private final String API_URL_CURRENCIES = "https://api.exchangeratesapi.io/latest";
-    private final Integer REFRESH_DELAY = 60000;
+    private final String ACCESS_KEY = "b4e1bde979cfa85f8468317e5143ac65";
+    private final String CURRENCIES_API = "http://api.exchangeratesapi.io/v1/latest?access_key=" + ACCESS_KEY;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -63,9 +56,6 @@ public class CurrencyExchangeAppFragment extends Fragment {
 
         amount = 0;
         conversionRate = 0;
-        timer = new Timer();
-        useCachedResults = new HashMap<>();
-        exchangeRates = new HashMap<>();
     }
 
     @Override
@@ -73,73 +63,67 @@ public class CurrencyExchangeAppFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_currency_exchange_app, container, false);
 
         editAmount = view.findViewById(R.id.currencyAmountNum);
+        editAmount.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {}
 
-        quoteBtn = view.findViewById(R.id.quoteBtn);
-        quoteBtn.setOnClickListener(getQuote);
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(s.length() != 0) getQuote(s.toString());
+            }
+        });
 
         progressBar = view.findViewById(R.id.progressBarCurrency);
-        progressBar.setVisibility(View.INVISIBLE);
 
-        InitializeSpinners(view);
+        topCurrencySpinner = view.findViewById(R.id.topCurrencySpinner);
+        bottomCurrencySpinner = view.findViewById(R.id.bottomCurrencySpinner);
+
+        progressBar.setVisibility(View.VISIBLE);
+
+        new GetCurrenciesAsync(CurrencyExchangeAppFragment.this).execute();
 
         return view;
     }
 
-    /*
-     Quote Button onClick event - Performs input validation
-     */
-    private View.OnClickListener getQuote = new View.OnClickListener() {
-        public void onClick(View view) // use getView() if view is needed in this event
-        {
-            final double LOWER_LIMIT = 0.0;
-            final double UPPER_LIMIT = 1000000000.0;
+    private void getQuote(String value) {
+        final double LOWER_LIMIT = 0.0;
+        final double UPPER_LIMIT = 1000000000.0;
 
-            if(availableCurrencies == null || availableCurrencies.length == 0){
-                DisplayApiError();
-                return;
-            }
-
-            currencyTop = topCurrencySpinner.getSelectedItem().toString();
-            currencyBottom = bottomCurrencySpinner.getSelectedItem().toString();
-
-            String amountString = JavaUtils.GetWidgetText(editAmount);
-
-            if(currencyTop.isEmpty() || currencyBottom.isEmpty()){
-                ShowErrorSnackbar(getString(R.string.app_currency_exchange_invalid_currency));
-                return;
-            }
-
-            if(currencyTop.equals(currencyBottom)){
-                ShowErrorSnackbar(getString(R.string.app_currency_exchange_same_currency));
-                return;
-            }
-
-            if(!useCachedResults.containsKey(currencyTop)){
-                ShowErrorSnackbar(getString(R.string.app_currency_exchange_invalid_currency));
-                return;
-            }
-
-            if(JavaUtils.CheckIfEmptyString(amountString)){
-                ShowErrorSnackbar(getString(R.string.app_currency_exchange_invalid_amount));
-                return;
-            }
-
-            amount = JavaUtils.DoubleTryParse(amountString);
-
-            if(!JavaUtils.ValidRange(amount, LOWER_LIMIT, UPPER_LIMIT)){
-                ShowErrorSnackbar(getString(R.string.app_currency_exchange_invalid_amount));
-                return;
-            }
-
-            quoteBtn.setEnabled(false);
-
-            if(!useCachedResults.get(currencyTop)){
-                progressBar.setVisibility(View.VISIBLE);
-            }
-
-            new GetExchangeRateAsync(CurrencyExchangeAppFragment.this).execute();
+        if(availableCurrencies == null || availableCurrencies.length == 0){
+            DisplayApiError();
+            return;
         }
-    };
+
+        currencyTop = topCurrencySpinner.getSelectedItem().toString();
+        currencyBottom = bottomCurrencySpinner.getSelectedItem().toString();
+
+        if(currencyTop.isEmpty() || currencyBottom.isEmpty()){
+            ShowErrorSnackbar(getString(R.string.app_currency_exchange_invalid_currency));
+            return;
+        }
+
+        if(currencyTop.equals(currencyBottom)){
+            ShowErrorSnackbar(getString(R.string.app_currency_exchange_same_currency));
+            return;
+        }
+
+        if(JavaUtils.CheckIfEmptyString(value)){
+            ShowErrorSnackbar(getString(R.string.app_currency_exchange_invalid_amount));
+            return;
+        }
+
+        amount = JavaUtils.DoubleTryParse(value);
+
+        if(!JavaUtils.ValidRange(amount, LOWER_LIMIT, UPPER_LIMIT)){
+            ShowErrorSnackbar(getString(R.string.app_currency_exchange_invalid_amount));
+            return;
+        }
+
+        DisplayResults();
+    }
 
     private void ShowErrorSnackbar(String msg) {
         FragmentActivity activity = getActivity();
@@ -150,19 +134,6 @@ public class CurrencyExchangeAppFragment extends Fragment {
         final int sbFontSize = 20;
 
         JavaUtils.ShowSnackbar(rootView, msg, sbFontSize);
-    }
-
-    /*
-    Initialize the two currency spinners and call the Async task to get currencies from API
-     */
-    private void InitializeSpinners(View view){
-        topCurrencySpinner = view.findViewById(R.id.topCurrencySpinner);
-        bottomCurrencySpinner = view.findViewById(R.id.bottomCurrencySpinner);
-
-        quoteBtn.setEnabled(false);
-        progressBar.setVisibility(View.VISIBLE);
-
-        new GetCurrenciesAsync(CurrencyExchangeAppFragment.this).execute();
     }
 
     /*
@@ -202,56 +173,41 @@ public class CurrencyExchangeAppFragment extends Fragment {
     }
 
     /*
-    Concatenates the base currency to the API URL as a query parameter
-     */
-    private String getRateUrl(String base){
-        return API_URL_RATES + base.toUpperCase();
-    }
-
-    /*
-    Returns the API URL for getting all Currencies
-     */
-    private String getCurrencyUrl(){
-        return API_URL_CURRENCIES;
-    }
-
-    /*
     Extracts the abbreviation of each currency and appends to string array
      */
-    private String[] extractCurrencies(ExchangeRate _exchangeRate){
-        int length = _exchangeRate.rates.size() + 1;
+    private ArrayList<String> extractCurrencyNames(ExchangeRate _exchangeRate){
         int index = 0;
 
-        String baseCurr = _exchangeRate.base;
-        String[] currencies = new String[length];
+        ArrayList<String> currencies = new ArrayList<>();
 
         try{
             for(String key : _exchangeRate.rates.keySet()){
-                currencies[index] = key;
-                useCachedResults.put(key, false);
+                if (key != null) {
+                    currencies.add(index, key);
+                }
                 index++;
-            }
-
-            if(!useCachedResults.containsKey(baseCurr)){
-                currencies[index] = baseCurr;
-                useCachedResults.put(baseCurr, false);
             }
         }
         catch (Exception ex){
             Log.d(APP_TAG, Objects.requireNonNull(ex.getMessage()));
         }
 
-        if(currencies.length > 1){
-            Arrays.sort(currencies);
+        if(!currencies.isEmpty()){
+            try {
+                Arrays.sort(currencies.toArray());
+            }
+            catch (Exception ex) {
+                Log.d(APP_TAG,Objects.requireNonNull(ex.getMessage()));
+            }
         }
 
         return currencies;
     }
 
     /*
-    Using the https://exchangeratesapi.io/ API to retrieve live currency data
+    Fetch live currency data from https://exchangeratesapi.io/ API
      */
-    private StringBuffer getExchangeRate(String url){
+    private StringBuffer getExchangeRate(String url) {
         StringBuffer httpResults;
 
         try{
@@ -287,7 +243,7 @@ public class CurrencyExchangeAppFragment extends Fragment {
 
     /*
     Populates the currency spinner widgets with the currencies returned from the API
-     */
+    */
     private void DisplayCurrencyOptions(){
         final FragmentActivity activity = getActivity();
 
@@ -305,7 +261,6 @@ public class CurrencyExchangeAppFragment extends Fragment {
                 topCurrencySpinner.setAdapter(adapter);
                 bottomCurrencySpinner.setAdapter(adapter);
 
-                quoteBtn.setEnabled(true);
                 progressBar.setVisibility(View.INVISIBLE);
             }
         });
@@ -316,35 +271,24 @@ public class CurrencyExchangeAppFragment extends Fragment {
      */
     private void DisplayResults(){
         final View view = getView();
+
+        if (view == null) return;
+
         final DecimalFormat format = new DecimalFormat("#,###.##");
-        final FragmentActivity activity = getActivity();
 
-        if(activity == null || view == null){
-            return;
-        }
+        String topRate, bottomRate;
+        Double result, conversionRateRounded;
 
-        activity.runOnUiThread(new Runnable() {
+        conversionRate = exchangeRate.getRateBySymbol(currencyTop, currencyBottom);
+        conversionRateRounded = Math.round(conversionRate * 100.0) / 100.0;
 
-            @Override
-            public void run() {
-                String topRate, bottomRate;
-                Double result, conversionRateRounded;
+        topRate = ReadConversion(currencyTop, currencyBottom, conversionRateRounded);
+        bottomRate = ReadConversion(currencyBottom, currencyTop, Math.round(1/conversionRate * 100.0)/100.0);
 
-                conversionRate = exchangeRate.getRateBySymbol(currencyBottom);
-                conversionRateRounded = Math.round(conversionRate * 100.0) / 100.0;
+        result = Convert(amount);
 
-                topRate = ReadConversion(currencyTop, currencyBottom, conversionRateRounded);
-                bottomRate = ReadConversion(currencyBottom, currencyTop, Math.round(1/conversionRate * 100.0)/100.0);
-
-                result = Convert(amount);
-
-                SetUpperLowerCurrencies(format.format(amount), format.format(result), view);
-                SetUpperLowerConversion(topRate, bottomRate, view);
-
-                quoteBtn.setEnabled(true);
-                progressBar.setVisibility(View.INVISIBLE);
-            }
-        });
+        SetUpperLowerCurrencies(format.format(amount), format.format(result), view);
+        SetUpperLowerConversion(topRate, bottomRate, view);
     }
 
     /*
@@ -361,7 +305,6 @@ public class CurrencyExchangeAppFragment extends Fragment {
 
             @Override
             public void run() {
-                quoteBtn.setEnabled(true);
                 progressBar.setVisibility(View.INVISIBLE);
                 ShowErrorSnackbar(getString(R.string.app_currency_exchange_api_error));
             }
@@ -385,12 +328,16 @@ public class CurrencyExchangeAppFragment extends Fragment {
 
             if (activity == null) return null;
 
-            String url = activity.getCurrencyUrl();
-            StringBuffer json = activity.getExchangeRate(url);
+            StringBuffer json = activity.getExchangeRate(activity.CURRENCIES_API);
 
             if(json != null){
-                ExchangeRate temp = activity.parseResults(json.toString());
-                activity.availableCurrencies = activity.extractCurrencies(temp);
+                ExchangeRate rate = activity.parseResults(json.toString());
+                if (rate == null) {
+                    return null;
+                }
+
+                activity.exchangeRate = rate;
+                activity.availableCurrencies = activity.extractCurrencyNames(rate).toArray(new String[0]);
 
                 return activity.availableCurrencies;
             }
@@ -413,92 +360,6 @@ public class CurrencyExchangeAppFragment extends Fragment {
             else{
                 activity.DisplayApiError();
             }
-        }
-    }
-
-    /*
-    Learned how to run asynchronous tasks from https://developer.android.com/reference/android/os/AsyncTask
-     */
-    private static class GetExchangeRateAsync extends AsyncTask<String, String, ExchangeRate> {
-
-        private WeakReference<CurrencyExchangeAppFragment> ref;
-
-        GetExchangeRateAsync(CurrencyExchangeAppFragment context){
-            ref = new WeakReference<>(context);
-        }
-
-        @Override
-        protected ExchangeRate doInBackground(String... args) {
-            CurrencyExchangeAppFragment activity = ref.get();
-
-            if (activity == null) return null;
-
-            String baseCurr = activity.currencyTop;
-
-            if(!activity.useCachedResults.get(baseCurr) || !activity.exchangeRates.containsKey(baseCurr)){
-                String url = activity.getRateUrl(activity.currencyTop);
-                StringBuffer json = activity.getExchangeRate(url);
-
-                if(json != null){
-                    activity.exchangeRate = activity.parseResults(json.toString());
-
-                    activity.exchangeRates.put(baseCurr, activity.exchangeRate);
-                    activity.useCachedResults.put(baseCurr, true);
-
-                    activity.timer.schedule(new CustomTimerTask(baseCurr, activity), activity.REFRESH_DELAY);
-                }
-                else{
-                    return null;
-                }
-            }
-            else{
-                activity.exchangeRate = activity.exchangeRates.get(baseCurr);
-            }
-
-            return activity.exchangeRate;
-        }
-
-        @Override
-        protected void onProgressUpdate(String... progress) { }
-
-        @Override
-        protected void onPostExecute(ExchangeRate _exchangeRate) {
-            CurrencyExchangeAppFragment activity = ref.get();
-
-            if (activity == null) return;
-
-            if(_exchangeRate != null){
-                activity.DisplayResults();
-            }
-            else{
-                activity.DisplayApiError();
-            }
-        }
-    }
-
-    /*
-    Class that extends TimerTask to add additional functionality
-     */
-    private static class CustomTimerTask extends TimerTask {
-
-        private WeakReference<CurrencyExchangeAppFragment> ref;
-        private String key;
-
-        CustomTimerTask(String _key, CurrencyExchangeAppFragment context){
-            super();
-            key = _key;
-            ref = new WeakReference<>(context);
-        }
-
-        @Override
-        public void run() {
-            CurrencyExchangeAppFragment activity = ref.get();
-
-            if (activity == null) return;
-
-            activity.useCachedResults.put(key, false);
-            activity.exchangeRates.remove(key);
-            this.cancel();
         }
     }
 }

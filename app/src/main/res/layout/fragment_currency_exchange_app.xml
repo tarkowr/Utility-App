@@ -133,7 +133,7 @@
 
     <EditText
         android:id="@+id/currencyAmountNum"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
@@ -141,39 +141,24 @@
         android:ems="10"
         android:hint="@string/app_currency_exchange_amount_hint"
         android:inputType="number"
+        android:textAlignment="center"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bottomConversionLayout" />
 
-    <Button
-        android:id="@+id/quoteBtn"
-        android:layout_width="match_parent"
-        android:layout_height="50sp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
-        android:background="@color/colorPrimary"
-        android:text="@string/app_currency_exchange_quote_text"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/currencyAmountNum" />
-
     <ProgressBar
         android:id="@+id/progressBarCurrency"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
         android:indeterminateTint="@color/colorPrimary"
         android:visibility="visible"
-        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/quoteBtn" />
+        app:layout_constraintTop_toBottomOf="@+id/currencyAmountNum" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
